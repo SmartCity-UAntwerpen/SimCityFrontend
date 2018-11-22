@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<!-- Edit Worker Modal Form -->
+<div th:fragment="editUserModal">
+    <div class="modal fade" th:id="editUserModal+${aUser.id}+${aUser.firstName}+${aUser.lastName}+${aUser.password}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="editUserModalLabel" th:text="#{modal.edituser.title}">Edit user</h4>
+                </div>
+                <form id="editUserForm" th:action="@{/users/{id}(id=${aUser.id})}" th:object="${user}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="firstName" class="control" th:text="#{user.firstName} + ':'">First name:</label>
+                            <input type="text" class="form-control" id="firstName" th:value="${aUser.firstName}" name="firstName"
+                                   required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.edituser.fillFirstName}+'\');'" oninput="this.setCustomValidity('')"/>
+                            <label for="lastName" class="control" th:text="#{user.lastName} + ':'">Last name:</label>
+                            <input type="text" class="form-control" id="lastName" th:value="${aUser.lastName}" name="lastName"
+                                   required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.edituser.fillLastName}+'\');'" oninput="this.setCustomValidity('')"/>
+                            <label for="username" class="control" th:text="#{user.username} + ':'">Username:</label>
+                            <input type="text" class="form-control" id="username" th:value="${aUser.username}" name="username"
+                                   required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.edituser.fillUserName}+'\');'" oninput="this.setCustomValidity('')"/>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <label for="password" class="control" th:text="#{modal.newuser.newPassword} + ':'">New password:</label>
+                            <input type="password" class="form-control" id="password" th:value="${aUser.password}" name="password"
+                                   required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.edituser.fillPassword}+'\');'" oninput="this.setCustomValidity('')"/>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <label for="roles" class="control" th:text="#{user.role} + ':'">Role:</label>
+                            <select class="form-control" id="roles" th:field="*{roles}">
+                                <option th:each="role:${allRoles}" th:value="${{role}}" th:text="${role.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{cancel}">Cancel</button>
+                        <button type="submit" class="btn btn-primary" th:text="#{edit}">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

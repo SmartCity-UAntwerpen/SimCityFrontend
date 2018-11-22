@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<!-- Edit Bot Modal Form -->
+<div th:fragment="editBotModal">
+    <div class="modal fade" th:id="editBotModal+${aBot.id}" tabindex="-1" role="dialog" aria-labelledby="editBotModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="editBotModalLabel" th:text="#{modal.editbot.title}">Edit bot</h4>
+                </div>
+                <form th:id="editBotForm+${aBot.id}" action="#" th:action="@{/}" th:object="${bot}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label th:for="botProperty+${aBot.id}" class="control" th:text="#{bot.property} + ':'">Property:</label>
+                            <select class="form-control" th:id="botProperty+${aBot.id}" th:field="*{property}">
+                                <option th:each="propertyOption:${properties}"
+                                        th:value="${propertyOption}"
+                                        th:text="${propertyOption}">
+                                </option>
+                            </select>
+                            <script type="text/javascript" th:src="@{/js/URLparser.js}"></script>
+                            <label th:for="propertyValue" class="control" th:text="#{bot.property.value} + ':'">Value:</label>
+                            <input type="text" class="form-control" th:id="propertyValue+${aBot.id}" th:field="*{value}"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{cancel}">Cancel</button>
+                        <button type="submit" class="btn btn-primary" th:onclick="'javascript:setEditAction(\'' + ${aBot.id} + '\');'" th:text="#{edit}">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

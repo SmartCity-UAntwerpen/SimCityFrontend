@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="layout :: head (pageTitle=#{homepage.title})"></head>
+<body>
+<!-- Import navigation bar -->
+<div th:replace="layout :: navbar"></div>
+<div class="container-fluid">
+    <div class="front-content">
+        <h2 th:text="#{application.title}">SimCity</h2>
+        <p>This is the homepage of the SimCity front-end project. This project is developed by the Distributed Computing students at the University of Antwerp.</p>
+        <p>The following functionality is available in the current version:</p>
+        <ul>
+            <li>User management</li>
+            <li>Worker management (currently disabled due to the use of a single worker machine)</li>
+            <li>Bot management of the following simulated bot types:</li>
+            <ul>
+                <li>Car (robot)</li>
+                <li>Drone</li>
+                <li>F1-car</li>
+            </ul>
+            <li>Terminal service</li>
+        </ul>
+        <p th:text="'Copyright &copy; 2015-2017 UAntwerpen and its licensors. All Rights Reserved.'">Copyright</p>
+        <div class="flip">
+            <div class="front">
+                <img th:src="@{/images/coin_front.png}" alt="coin_front" />
+            </div>
+            <div class="back">
+                <img th:src="@{/images/coin_back.png}" alt="coin_back" />
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Import footer -->
+<div th:replace="layout :: footer"></div>
+</body>
+<script>
+    $(function(){
+        $(".flip").flip({
+            trigger: 'hover'
+        });
+    });
+</script>
+</html>

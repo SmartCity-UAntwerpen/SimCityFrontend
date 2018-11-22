@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="layout :: head (pageTitle=#{settings.title})"></head>
+<body><!-- onload="getURL(3,'url')"-->
+<!-- Import navigation bar -->
+<div th:replace="layout :: navbar"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-3 sidebar non-mobile-element">
+            <ul class="nav nav-pills nav-stacked">
+                <li role="presentation" class="active"><a href="#" th:text="#{settings.server}">Server</a></li>
+                <li role="presentation"><a th:href="@{/settings/users}" th:text="#{settings.users}">Users</a></li>
+                <li role="presentation"><a th:href="@{/settings/workers}" th:text="#{settings.workers}">Workers</a></li>
+            </ul>
+        </div>
+
+        <div class="col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-3 front-content">
+            <h2 th:text="#{settings.title}">Settings</h2>
+            <dl>
+                <dt th:text="#{settings.serverName}">Server name:</dt>
+                <dd th:text="${serverName}">localhost</dd>
+
+                <dt th:text="#{settings.serverIp}">Server IP-addresses:</dt>
+                <!--<dd th:text="${serverIp}">localhost</dd>-->
+                <dd th:each="address : ${allServerIps}" th:text="${address}">localhost</dd>
+            </dl>
+            <!--<p>URL is : <span id="url"></span></p>-->
+            <ul class="nav nav-tabs mobile-element">
+                <li role="presentation" class="active"><a href="#" th:text="#{settings.server}">Server</a></li>
+                <li role="presentation"><a th:href="@{/settings/users}" th:text="#{settings.users}">Users</a></li>
+                <li role="presentation"><a th:href="@{/settings/workers}" th:text="#{settings.workers}">Workers</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Import footer -->
+<div th:replace="layout :: footer"></div>
+</body>
+<script type="text/javascript" th:src="@{/js/URLparser.js}"></script>
+</html>

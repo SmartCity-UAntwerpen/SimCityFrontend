@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<!-- New Bot Modal Form -->
+<div th:fragment="newBotsModal">
+    <div class="modal fade" id="newBotsModal" tabindex="-1" role="dialog" aria-labelledby="newBotsModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="newBotsModalLabel" th:text="#{modal.newbots.title}">Add new bots</h4>
+                </div>
+                <form id="newBotsForm" action="#" th:action="@{/}" th:object="${type}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="type_new" class="control" th:text="#{type} + ':'">Type:</label>
+                            <select class="form-control" id="type_new" th:field="${type}">
+                                <option th:each="typeOption:${types}"
+                                        th:value="${typeOption}"
+                                        th:text="${typeOption}">
+                                </option>
+                            </select>
+                            <script type="text/javascript" th:src="@{/js/URLparser.js}"></script>
+                            <label th:for="amount" class="control" th:text="#{bots.amount} + ':'">Amount:</label>
+                            <input type="text" class="form-control" th:id="amount"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{cancel}">Cancel</button>
+                        <button type="submit" class="btn btn-primary" onclick="createBotsAction()" th:text="#{add}">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

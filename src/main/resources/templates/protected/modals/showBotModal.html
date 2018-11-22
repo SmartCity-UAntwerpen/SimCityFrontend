@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<!-- Show Bot Modal Form -->
+<div th:fragment="showBotModal">
+    <div class="modal fade" th:id="showBotModal+${aBot.id}+${aBot.name}+${aBot.type}+${aBot.getBotStatus().getRunningState()}+${aBot.getSimSpeed()}+${aBot.getStartPoint()}" tabindex="-1" role="dialog" aria-labelledby="showBotModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="showBotModalLabel" th:text="#{modal.showBot.title}">Bot info</h4>
+                </div>
+                <form id="showBotForm" th:object="${bot}" method="get">
+                    <div class="modal-body">
+                        <label class="control" th:text="#{bot.id} + ': '+${aBot.id}">ID:</label>
+                        <hr/>
+                        <label class="control" th:text="#{bot.name} + ': '+${aBot.name}">Name:</label>
+                        <hr/>
+                        <label class="control" th:text="#{bot.type} + ': '+${aBot.type}">Type:</label>
+                        <hr/>
+                        <div th:switch="${aBot.getStartPoint()}">
+                            <label th:case="'-1'" class="control" th:text="#{bot.startpoint} + ': '+'not set'">Startpoint:</label>
+                            <label th:case="*" class="control" th:text="#{bot.startpoint} + ': '+${aBot.getStartPoint()}">Startpoint:</label>
+                        </div>
+                        <!--<?php if(${aBot.getStartPoint()} == -1) : ?>
+                        <label class="control" th:text="#{bot.startpoint} + ': '+'not set'">Startpoint:</label>
+                        <?php elseif(${aBot.getStartPoint()} != -1) : ?>
+                        <label class="control" th:text="#{bot.startpoint} + ': '+${aBot.getStartPoint()}">Startpoint:</label>
+                        <?php endif; ?>-->
+                        <hr/>
+                        <label class="control" th:text="#{bot.speed} + ': '+${aBot.getSimSpeed()}">Speed:</label>
+                        <hr/>
+                        <label class="control" th:text="#{bot.status} + ': '+${aBot.getBotStatus().getRunningState()}">Status:</label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{close}">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

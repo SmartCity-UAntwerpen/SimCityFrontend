@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="layout :: head (pageTitle=#{botManagement.title})"></head>
+<body>
+<!-- Import navigation bar -->
+<div th:replace="layout :: navbar"></div>
+
+<div class="container-fluid">
+    <div class="front-content">
+        <h2 th:text="#{application.title}">SimCity</h2>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title" th:text="#{bots}">Bots</h3>
+            </div>
+            <div class="panel-body" style="padding: 0">
+                <div style="height: 40vh; overflow-y: auto">
+                    <table class="table table-striped">
+                        <col width="20%"/>
+                        <col width="20%"/>
+                        <col width="20%"/>
+                        <col width="20%"/>
+                        <col width="1%"/>
+                        <col width="1%"/>
+                        <col width="1%"/>
+                        <col width="1%"/>
+                        <col width="1%"/>
+                        <col width="1%"/>
+                        <tr style="font-size:120%">
+                            <th th:text="#{bot.id}">ID</th>
+                            <th th:text="#{bot.name}">Bot</th>
+                            <th th:text="#{bot.type}">Type</th>
+                            <th th:text="#{bot.status}">Status</th>
+                            <th th:text="''">Place holder - Play Button</th>
+                            <th th:text="''">Place holder - Edit Button</th>
+                            <th th:text="''">Place holder - Stop Button</th>
+                            <th th:text="''">Place holder - Restart Button</th>
+                            <th th:text="''">Place holder - Delete Button</th>
+                            <th th:text="''">Place holder - Info Button</th>
+                        </tr>
+                        <tr th:each="aBot : ${allBots}">
+                            <td th:text="${aBot.id}">ID</td>
+                            <td th:text="${aBot.name}">Bot name</td>
+                            <td th:text="${aBot.type}">Type</td>
+                            <td th:text="${aBot.getBotStatus().getRunningState()}">Status</td>
+                            <td><a th:href="@{'/workers/0/bots/run/' + __${aBot.id}__}" type="button" class="btn btn-success btn-xs" th:title="#{run}"><span class="glyphicon glyphicon-play"></span></a></td>
+                            <td><a type="button" class="btn btn-primary btn-xs" th:title="#{edit}" data-toggle="modal" th:attr="data-target='#editBotModal'+${aBot.id}"><span class="glyphicon glyphicon-pencil"></span></a></td>
+                            <div th:replace="protected/modals/editBotModal :: editBotModal"></div>
+                            <td><a th:href="@{'/workers/0/bots/stop/' + __${aBot.id}__}" type="button" class="btn btn-warning btn-xs" th:title="#{stop}"><span class="glyphicon glyphicon-stop"></span></a></td>
+                            <td><a th:href="@{'/workers/0/bots/restart/' + __${aBot.id}__}" type="button" class="btn btn-default btn-xs" th:title="#{restart}"><span class="glyphicon glyphicon-repeat"></span></a></td>
+                            <td><a th:href="@{'/workers/0/bots/delete/' + __${aBot.id}__}" type="button" class="btn btn-danger btn-xs" th:title="#{delete}"><span class="glyphicon glyphicon-trash"></span></a></td>
+                            <td><a type="button" class="btn btn-info btn-xs" th:title="#{info}" data-toggle="modal" th:attr="data-target='#showBotModal'+${aBot.id}+${aBot.name}+${aBot.type}+${aBot.getBotStatus().getRunningState()}+${aBot.getSimSpeed()}+${aBot.getStartPoint()}"><span class="glyphicon glyphicon-info-sign"></span></a></td>
+                            <div th:replace="protected/modals/showBotModal :: showBotModal"></div>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import footer -->
+<div th:replace="layout :: footer"></div>
+</body>
+</html>

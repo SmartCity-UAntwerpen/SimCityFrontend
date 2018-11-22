@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="layout :: head (pageTitle=#{help.title})"></head>
+<body>
+<!-- Import navigation bar -->
+<div th:replace="layout :: navbar"></div>
+
+<div class="container-fluid">
+    <object data="/pdf/SmartCityProject_doc.pdf" type="application/pdf" width="100%" height="1600px">
+        <p><b>Error displaying pdf</b>: this browser does not support PDF. Please download PDF to view it: <a th:href="@{/pdf/SmartCityProject_doc.pdf}">Download PDF</a></p>
+    </object>
+</div>
+</body>
+</html>

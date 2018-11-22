@@ -1,0 +1,14 @@
+.flip {
+    height: 199px;
+    width: 300px;
+    margin: 0 auto;
+}
+.flip img {
+    width: 300px;
+    height: auto;
+}
+.flip .back {
+    background: #fff;
+    color: #fff;
+    text-align: center;
+}
