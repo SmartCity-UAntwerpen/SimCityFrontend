@@ -62,14 +62,15 @@
                     <div style="height: 40vh; overflow-y: auto">
                         <table class="table table-striped">
                             <col width="30%"/>
-                            <col width="30%"/>
-                            <col width="30%"/>
-                            <col width="5%"/>
+                            <col width="20%"/>
+                            <col width="20%"/>
+                            <col width="20%"/>
                             <col width="5%"/>
                             <tr style="font-size:120%">
                                 <th th:text="#{worker.id}">ID</th>
                                 <th th:text="#{worker}">Worker</th>
                                 <th th:text="#{worker.serverUrl}">Worker URL</th>
+                                <th th:text="#{worker.type}">Type</th>
                                 <th th:text="''">Place holder - Edit Button</th>
                                 <th th:text="''">Place holder - Delete Button</th>
                             </tr>
@@ -77,6 +78,7 @@
                                 <td th:text="${aWorker.id}">ID</td>
                                 <td th:text="${aWorker.workerName}">Worker name</td>
                                 <td th:text="${aWorker.serverURL}">Worker URL</td>
+                                <td th:text="${aWorker.workerType}">Type</td>
                                 <!--Edit and delete buttons have been disabled. They can be enabled by uncommenting the following line and by commenting the next line.-->
                                <!-- <td><a type="button" class="btn btn-default btn-sm" th:title="#{settings.edit}" data-toggle="modal" th:attr="data-target='#editWorkerModal'+${aWorker.id}"><span class="glyphicon glyphicon-pencil"></span></a></td>
                                 <div th:replace="protected/modals/editWorkerModal :: editWorkerModal"></div>
