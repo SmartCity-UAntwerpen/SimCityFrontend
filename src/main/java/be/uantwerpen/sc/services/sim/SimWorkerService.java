@@ -1,6 +1,7 @@
 package be.uantwerpen.sc.services.sim;
 
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,7 @@ public class SimWorkerService
             if(w.getId().equals(worker.getId()))
             {
                 w.setWorkerName(worker.getWorkerName());
+                w.setWorkerType(worker.getWorkerType());
                 w.setServerURL(worker.getServerURL());
                 w.setRecordTime(worker.getRecordTime());
                 w.setBotList(worker.getBotList());
@@ -107,6 +109,11 @@ public class SimWorkerService
     public SimWorker findByWorkerName(String workerName)
     {
         return simWorkerRepository.findByWorkerName(workerName);
+    }
+
+    public SimWorker findByWorkerType(SimWorkerType workerType)
+    {
+        return simWorkerRepository.findByWorkerType(workerType);
     }
 
     public SimWorker findByWorkerId(Long workerId)
