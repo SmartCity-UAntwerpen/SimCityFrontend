@@ -22,6 +22,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
     private long workerId;
     private String workerName;
     private String serverURL;
+    private SimWorkerType workerType;
     private Date recordTime;
     private String status;
 
@@ -32,16 +33,18 @@ public class SimWorker extends MyAbstractPersistable<Long>
     {
         this.workerId = 0L;
         this.workerName = "";
+        this.workerType = null;
         this.serverURL = null;
         this.recordTime = null;
         this.bots = null;
         this.status = "UNKNOWN";
     }
 
-    public SimWorker(String workerName, String serverURL)
+    public SimWorker(String workerName, String serverURL, SimWorkerType workerType)
     {
         this.workerId = 0L;
         this.workerName = workerName;
+        this.workerType = workerType;
         this.serverURL = serverURL;
         this.recordTime = null;
         this.bots = null;
@@ -66,6 +69,14 @@ public class SimWorker extends MyAbstractPersistable<Long>
     public String getWorkerName()
     {
         return this.workerName;
+    }
+
+    public SimWorkerType getWorkerType() {
+        return workerType;
+    }
+
+    public void setWorkerType(SimWorkerType workerType) {
+        this.workerType = workerType;
     }
 
     public void setServerURL(String serverURL)
