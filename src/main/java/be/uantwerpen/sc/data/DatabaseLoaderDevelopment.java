@@ -108,7 +108,7 @@ public class DatabaseLoaderDevelopment
     private void initWorkerDatabase()
     {
         //Test worker
-        SimWorker worker1 = new SimWorker("worker-1", "localhost");
+        SimWorker worker1 = new SimWorker("worker-1", "localhost:7777");
 
         //Save workers to database
         simWorkerRepository.save(worker1);

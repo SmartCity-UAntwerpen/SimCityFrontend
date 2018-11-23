@@ -35,6 +35,9 @@ public class WorkerController extends GlobalModelController
     @PreAuthorize("hasRole('logon')")
     public String showWorkerpage(ModelMap model)
     {
+        for (SimWorker worker: workerService.findAll()) {
+            worker.updateStatus();
+        }
         return "protected/workerpage";
     }
 
