@@ -294,5 +294,24 @@ public class SimSupervisorService
     {
         return this.bots;
     }
+
+    public int getBotWorkerID(int botId)
+    {
+        SimBot bot = this.getBot(botId);
+        return bot.getWorkerId();
+    }
+
+    public List<SimBot> findAllByWorkerID(int workerID)
+    {
+        List<SimBot> workerBots = new ArrayList<>();
+
+        for(SimBot simBot : this.bots)
+        {
+            if(simBot.getWorkerId() == workerID)
+            workerBots.add(simBot);
+        }
+
+        return workerBots;
+    }
 }
 

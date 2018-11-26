@@ -1,7 +1,9 @@
 package be.uantwerpen.sc.controllers;
 
+import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimForm;
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.services.sim.SimSupervisorService;
 import be.uantwerpen.sc.services.sim.SimWorkerService;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.TypesList;
@@ -26,6 +28,9 @@ public class WorkerController extends GlobalModelController
 {
     @Autowired
     private SimWorkerService workerService;
+
+    @Autowired
+    private SimSupervisorService supervisorService;
 
     @Autowired
     TypesList typesList;
@@ -103,8 +108,8 @@ public class WorkerController extends GlobalModelController
     }
 
     // Show worker management page with bot actions
-    @RequestMapping(value="/workers/management", method= RequestMethod.GET)
-    public String manageWorker(ModelMap model, @Validated @ModelAttribute("type") String type) throws Exception
+    @RequestMapping(value="/workers/{workerId}/management/", method= RequestMethod.GET)
+    public String manageWorker(ModelMap model, @Validated @ModelAttribute("type") String type, @PathVariable String workerId) throws Exception
     {
         List<String> types = new ArrayList<String>();
         try {
@@ -119,6 +124,9 @@ public class WorkerController extends GlobalModelController
         SimForm botForm = new SimForm();
         List<String> properties = new PropertiesList().getProperties();
 
+        List<SimBot> workerBots = supervisorService.findAllByWorkerID(Integer.parseInt(workerId));
+
+        model.addAttribute("allWorkerBots", workerBots);
         model.addAttribute("bot", botForm);
         model.addAttribute("properties", properties);
 

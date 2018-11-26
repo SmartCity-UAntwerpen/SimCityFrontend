@@ -119,6 +119,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
             if(simSocket.sendMessage("ping\n"))
             {
                 String response = simSocket.getMessage();
+                System.out.println(response);
                 while(response == null)
                 {
                     response = simSocket.getMessage();

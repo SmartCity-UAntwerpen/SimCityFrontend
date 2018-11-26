@@ -1,10 +1,13 @@
 package be.uantwerpen.sc.services.sim;
 
+import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimWorker;
 import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by Thomas on 03/04/2016.
@@ -111,11 +114,6 @@ public class SimWorkerService
         return simWorkerRepository.findByWorkerName(workerName);
     }
 
-    public SimWorker findByWorkerType(SimWorkerType workerType)
-    {
-        return simWorkerRepository.findByWorkerType(workerType);
-    }
-
     public SimWorker findByWorkerId(Long workerId)
     {
         return simWorkerRepository.findByWorkerId(workerId);
@@ -124,5 +122,10 @@ public class SimWorkerService
     public SimWorker findById(Long id)
     {
         return simWorkerRepository.findById(id);
+    }
+
+    public SimWorker findByWorkerType(SimWorkerType workerType)
+    {
+        return simWorkerRepository.findByWorkerType(workerType);
     }
 }
