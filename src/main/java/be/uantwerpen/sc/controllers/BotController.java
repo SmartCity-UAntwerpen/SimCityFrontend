@@ -175,7 +175,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Delete all bots
-    @RequestMapping(value="/workers/{workerId}/bots/deleteAll")
+    @RequestMapping(value="/bots/deleteAll")
     @PreAuthorize("hasRole('logon')")
     public String killAllBots(ModelMap model)
     {
