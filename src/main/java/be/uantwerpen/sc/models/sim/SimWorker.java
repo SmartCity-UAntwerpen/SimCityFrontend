@@ -26,9 +26,6 @@ public class SimWorker extends MyAbstractPersistable<Long>
     private Date recordTime;
     private String status;
 
-    @Transient
-    private List<SimBot> bots;
-
     public SimWorker()
     {
         this.workerId = 0L;
@@ -36,7 +33,6 @@ public class SimWorker extends MyAbstractPersistable<Long>
         this.workerType = null;
         this.serverURL = null;
         this.recordTime = null;
-        this.bots = null;
         this.status = "UNKNOWN";
     }
 
@@ -47,7 +43,6 @@ public class SimWorker extends MyAbstractPersistable<Long>
         this.workerType = workerType;
         this.serverURL = serverURL;
         this.recordTime = null;
-        this.bots = null;
         this.status = "UNKNOWN";
     }
 
@@ -97,16 +92,6 @@ public class SimWorker extends MyAbstractPersistable<Long>
     public Date getRecordTime()
     {
         return this.recordTime;
-    }
-
-    public void setBotList(List<SimBot> bots)
-    {
-        this.bots = bots;
-    }
-
-    public List<SimBot> getBotList()
-    {
-        return this.bots;
     }
 
     public String getStatus() {
