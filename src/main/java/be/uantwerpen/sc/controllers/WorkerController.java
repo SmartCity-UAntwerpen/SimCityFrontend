@@ -111,6 +111,9 @@ public class WorkerController extends GlobalModelController
         List<SimBot> workerBots = supervisorService.findAllByWorkerID(Integer.parseInt(workerId));
         model.addAttribute("allWorkerBots", workerBots);
 
+        SimWorker w = workerService.findById(Long.parseLong(workerId));
+        model.addAttribute("worker", w);
+
         return "protected/workerManagement";
     }
 
