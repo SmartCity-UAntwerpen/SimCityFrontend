@@ -30,7 +30,13 @@
                         <tr th:each="worker : ${allWorkers}">
                             <td th:text="${worker.id}">ID</td>
                             <td th:text="${worker.workerName}">Worker name</td>
-                            <td th:text="${worker.status}">Status</td>
+
+                            <td th:switch="${worker.status}">
+                                <span th:case="'ONLINE'" th:text="${worker.status}" class="label label-success">Status</span>
+                                <span th:case="'CONNECTION ERROR'" th:text="${worker.status}" class="label label-danger">Status</span>
+                                <span th:case="*" th:text="${worker.status}" class="label label-warning">Status</span>
+                            </td>
+
                             <td th:text="${worker.workerType}">Worker type</td>
                             <td><a th:href="@{'/workers/'+ __${worker.id}__ +  '/management/'}" type="button" class="btn btn-info btn-xs" th:title="#{settings.workermanagement}"><span class="glyphicon glyphicon-chevron-right"></span></a></td>
                         </tr>
