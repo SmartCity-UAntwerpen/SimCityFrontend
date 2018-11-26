@@ -14,10 +14,10 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="workerName" class="control" th:text="#{worker.workerName} + ':'">Worker name:</label>
-                            <input type="text" class="form-control" id="workerName" th:field="*{workerName}"
+                            <input type="text" class="form-control" id="workerName" name="workerName" th:value="${aWorker.workerName}"
                                    required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.editworker.fillName}+'\');'" oninput="this.setCustomValidity('')"/>
-                            <label for="workerUrl" class="control" th:text="#{worker.serverUrl} + ':'">Worker URL:</label>
-                            <input type="text" class="form-control" id="workerUrl" th:field="*{serverURL}"
+                            <label for="serverURL" class="control" th:text="#{worker.serverUrl} + ':'">Worker URL:</label>
+                            <input type="text" class="form-control" id="serverURL" name="serverURL" th:value="${aWorker.serverURL}"
                                    required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.editworker.fillUrl}+'\');'" oninput="this.setCustomValidity('')"/>
                         </div>
                     </div>
