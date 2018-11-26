@@ -32,9 +32,6 @@ public class WorkerController extends GlobalModelController
     @Autowired
     private SimSupervisorService supervisorService;
 
-    @Autowired
-    TypesList typesList;
-
     // Show worker page
     @RequestMapping(value = "/workers")
     @PreAuthorize("hasRole('logon')")
@@ -109,26 +106,10 @@ public class WorkerController extends GlobalModelController
 
     // Show worker management page with bot actions
     @RequestMapping(value="/workers/{workerId}/management/", method= RequestMethod.GET)
-    public String manageWorker(ModelMap model, @Validated @ModelAttribute("type") String type, @PathVariable String workerId) throws Exception
+    public String manageWorker(ModelMap model, @PathVariable String workerId) throws Exception
     {
-        List<String> types = new ArrayList<String>();
-        try {
-            types = typesList.getTypes();
-            model.addAttribute("types", types);
-        } catch (Exception e) {
-            types.add("No types could be loaded!");
-            e.printStackTrace();
-            model.addAttribute("types", types);
-        }
-
-        SimForm botForm = new SimForm();
-        List<String> properties = new PropertiesList().getProperties();
-
         List<SimBot> workerBots = supervisorService.findAllByWorkerID(Integer.parseInt(workerId));
-
         model.addAttribute("allWorkerBots", workerBots);
-        model.addAttribute("bot", botForm);
-        model.addAttribute("properties", properties);
 
         return "protected/workerManagement";
     }

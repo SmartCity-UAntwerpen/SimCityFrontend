@@ -6,6 +6,7 @@ import be.uantwerpen.sc.services.sim.SimDispatchService;
 import be.uantwerpen.sc.services.sim.SimSupervisorService;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.Terminal;
+import be.uantwerpen.sc.tools.TypesList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +32,25 @@ public class BotController extends GlobalModelController{
     @Autowired
     SimSupervisorService supervisorService;
 
+    @Autowired
+    TypesList typesList;
+
     private Terminal terminal;
 
     // Returns bot management page
     @RequestMapping(value = {"/bots"})
     @PreAuthorize("hasRole('logon')")
-    public String showBotsSettings(ModelMap model) throws Exception {
+    public String showBotsSettings(ModelMap model, @Validated @ModelAttribute("type") String type) throws Exception {
+        List<String> types = new ArrayList<String>();
+        try {
+            types = typesList.getTypes();
+            model.addAttribute("types", types);
+        } catch (Exception e) {
+            types.add("No types could be loaded!");
+            e.printStackTrace();
+            model.addAttribute("types", types);
+        }
+
         SimForm botForm = new SimForm();
         List<String> properties = new PropertiesList().getProperties();
 
@@ -52,11 +67,11 @@ public class BotController extends GlobalModelController{
     {
         if(this.instantiateBot(type))
         {
-            return "redirect:/workers/management/?botCreatedSuccess";
+            return "redirect:/bots/?botCreatedSuccess";
         }
         else
         {
-            return "redirect:/workers/management/?botCreatedFailed";
+            return "redirect:/bots/?botCreatedFailed";
         }
 
     }
