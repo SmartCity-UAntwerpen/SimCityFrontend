@@ -91,6 +91,7 @@ public class SimWorkerService
                 w.setServerURL(worker.getServerURL());
                 w.setRecordTime(worker.getRecordTime());
                 w.setBotList(worker.getBotList());
+                w.setStatus(worker.getStatus());
 
                     if(simWorkerRepository.save(w) != null)
                     {

@@ -18,6 +18,7 @@ public class SimWorkerStatusService {
             for (SimWorker worker : simWorkerService.findAll()) {
                 System.out.println("Updating status of worker: " + worker.getWorkerName());
                 worker.updateStatus();
+                simWorkerService.save(worker);
             }
     }
 }
