@@ -90,6 +90,7 @@ public class WorkerController extends GlobalModelController
         SimWorker w = workerService.findById(worker.getId());
         w.setWorkerName(worker.getWorkerName());
         w.setServerURL(worker.getServerURL());
+        w.setWorkerType(worker.getWorkerType());
 
         if(workerService.save(w))
         {
