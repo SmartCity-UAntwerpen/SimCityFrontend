@@ -11,5 +11,6 @@ The SimCity frontend communicates with the simulation runners over TCP.
 Changes to the protocol are possible for each type of bot. These are the common commands. Commands **always** end with a newline ``\n``
 
 A full description of the commands can be found on Blackboard > documentatie 2016 - 2017 > Interfaces > Simulation interfaces.  
+The used id is only used between the simulation deployer en the simulation frontend.  
 
-The used id is only used between the simulation deployer en the simulation frontend. 
+⚠ A new addition to the protocol is the ``ping`` command. If the simulation worker is in good health, the response should always be ``PONG`` (in all caps). Any other response will mark the worker with an ``UNKOWN`` status.
