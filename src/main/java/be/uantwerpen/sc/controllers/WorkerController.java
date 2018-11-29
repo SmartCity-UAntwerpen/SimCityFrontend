@@ -108,7 +108,7 @@ public class WorkerController extends GlobalModelController
     @RequestMapping(value="/workers/{workerId}/management/", method= RequestMethod.GET)
     public String manageWorker(ModelMap model, @PathVariable String workerId) throws Exception
     {
-        List<SimBot> workerBots = supervisorService.findAllByWorkerID(Integer.parseInt(workerId));
+        List<SimBot> workerBots = supervisorService.findAllBotsByWorkerID(Long.parseLong(workerId));
         model.addAttribute("allWorkerBots", workerBots);
 
         SimWorker w = workerService.findById(Long.parseLong(workerId));

@@ -75,13 +75,14 @@ public class SimSupervisorService
         }
     }
 
-    public boolean addNewBot(SimBot bot)
+    public boolean addNewBot(SimBot bot, long workerId)
     {
         boolean status;
         int nextId = this.getNextId();
 
         bot.setId(nextId);
         bot.setName("bot-" + nextId);
+        bot.setWorkerId(workerId);
 
         if(bot.create())
         {
@@ -284,13 +285,13 @@ public class SimSupervisorService
         return this.bots;
     }
 
-    public int getBotWorkerID(int botId)
+    public long getBotWorkerID(int botId)
     {
         SimBot bot = this.getBot(botId);
         return bot.getWorkerId();
     }
 
-    public List<SimBot> findAllByWorkerID(int workerID)
+    public List<SimBot> findAllBotsByWorkerID(long workerID)
     {
         List<SimBot> workerBots = new ArrayList<>();
 
