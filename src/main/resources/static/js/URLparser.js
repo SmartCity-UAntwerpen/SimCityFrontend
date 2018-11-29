@@ -14,7 +14,7 @@ function setAction() {
     var action = document.getElementById("type").value;
     if (action !== "") {
         action = action.toLowerCase();
-        var url = "/workers/0/bots/create/" + action;
+        var url = "/bots/create/" + action;
         document.getElementById("newBotForm").action = url;
         document.getElementById("newBotForm").submit();
     } else {
@@ -28,7 +28,7 @@ function setEditAction(botId) {
     var value = document.getElementById("propertyValue" + botId).value;
     if (value !== "") {
         property = property.toLowerCase();
-        var url = '/workers/0/bots/set/' + botId + '/' + property + '/' + value;
+        var url = '/bots/set/' + botId + '/' + property + '/' + value;
         document.getElementById("editBotForm" + botId).action = url;
         document.getElementById("editBotForm" + botId).submit();
     } else {
@@ -42,7 +42,7 @@ function createBotsAction() {
     var value = document.getElementById("amount").value;
     if (action !== "") {
         action = action.toLowerCase();
-        var url = "/workers/0/bots/deploy/" + action + "/" + value;
+        var url = "/bots/deploy/" + action + "/" + value;
         document.getElementById("newBotsForm").action = url;
         document.getElementById("newBotsForm").submit();
     } else {

@@ -9,6 +9,8 @@ import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.Terminal;
 import be.uantwerpen.sc.tools.TypesList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,8 @@ import java.util.List;
  */
 @Controller
 public class BotController extends GlobalModelController{
+
+    private static final Logger logger = LoggerFactory.getLogger(BotController.class);
 
     @Autowired
     SimDispatchService dispatchService;
@@ -64,9 +69,9 @@ public class BotController extends GlobalModelController{
     }
 
     // Create bot
-    @RequestMapping(value="/workers/{workerId}/bots/create/{type}")
+    @RequestMapping(value="/bots/create/{type}")
     @PreAuthorize("hasRole('logon')")
-    public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, BindingResult result, ModelMap model)
+    public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, RedirectAttributes redir)
     {
         try {
             if (this.instantiateBot(type, autoStartPoint)) {
@@ -76,30 +81,34 @@ public class BotController extends GlobalModelController{
             }
         }
         catch (AutomaticStartingPointException e) {
-            System.out.println("Error while settings starting point: "+e.getMessage());
+            logger.warn("Error while settings starting point: "+e.getMessage());
+            redir.addFlashAttribute("errormsg",e.getMessage());
             return "redirect:/bots/?botStartingPointFailed";
         }
     }
 
     // Deploy multiple bots of a certain type at once
-    @RequestMapping(value="/workers/{workerId}/bots/deploy/{type}/{amount}")
+    @RequestMapping(value="/bots/deploy/{type}/{amount}")
     @PreAuthorize("hasRole('logon')")
-    public String deployBots(ModelMap model, @PathVariable String type, @PathVariable String amount)
+    public String deployBots(ModelMap model, @PathVariable String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, @PathVariable String amount, RedirectAttributes redir)
     {
 
-        if(this.instantiateBots(type, Integer.parseInt(amount)))
-        {
-            return "redirect:/bots/?botsDeployedSuccess";
+        try {
+            if (this.instantiateBots(type, Integer.parseInt(amount), autoStartPoint)) {
+                return "redirect:/bots/?botsDeployedSuccess";
+            } else {
+                return "redirect:/bots/?botsDeployedFailed";
+            }
         }
-        else
-        {
-            return "redirect:/bots/?botsDeployedFailed";
+        catch (AutomaticStartingPointException e) {
+            logger.warn("Error while settings starting point for bots: "+e.getMessage());
+            redir.addFlashAttribute("errormsg",e.getMessage());
+            return "redirect:/bots/?botsStartingPointFailed";
         }
-
     }
 
     // Run bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/run/{botId}")
+    @RequestMapping(value="/bots/run/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String runBot(@PathVariable int botId, ModelMap model) throws Exception
     {
@@ -115,7 +124,7 @@ public class BotController extends GlobalModelController{
 
 /*
     // NOT IMPLEMENTED IN FRONTEND YET: Run bots with IDs in a certain range
-    @RequestMapping(value="/workers/{workerId}/bots/run/{botId1}/{botId2}")
+    @RequestMapping(value="/bots/run/{botId1}/{botId2}")
     @PreAuthorize("hasRole('logon')")
     public String runBots(ModelMap model)
     {
@@ -125,17 +134,17 @@ public class BotController extends GlobalModelController{
 
         if(this.startBots(botId1, botId2))
         {
-            return "redirect:/workers/{workerId}/bots/?botsStartedSuccess";
+            return "redirect:/bots/?botsStartedSuccess";
         }
         else
         {
-            return "redirect:/workers/{workerId}/bots/?botsStartedFailed";
+            return "redirect:/bots/?botsStartedFailed";
         }
     }
 */
 
     // Stop bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/stop/{botId}")
+    @RequestMapping(value="/bots/stop/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String stopBot(@PathVariable int botId, ModelMap model) throws Exception
     {
@@ -150,7 +159,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Restart bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/restart/{botId}")
+    @RequestMapping(value="/bots/restart/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String restartBot(@PathVariable int botId, ModelMap model)
     {
@@ -165,7 +174,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Delete bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/delete/{botId}")
+    @RequestMapping(value="/bots/delete/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String killBot(@PathVariable int botId, ModelMap model)
     {
@@ -195,7 +204,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Set property to value for bot with a certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/set/{botId}/{property}/{value}")
+    @RequestMapping(value="/bots/set/{botId}/{property}/{value}")
     @PreAuthorize("hasRole('logon')")
     public String setBot(@PathVariable int botId, @PathVariable String property, @PathVariable String value, ModelMap model)
     {
@@ -247,7 +256,7 @@ public class BotController extends GlobalModelController{
     private void setAutoStart(SimBot bot) throws AutomaticStartingPointException {
         if(bot instanceof SimVehicle) {
             SimVehicle vehicle = (SimVehicle) bot;
-            if(!vehicle.setAutomaticStartPoint()) throw new AutomaticStartingPointException("Something went wrong :(");;
+            vehicle.setAutomaticStartPoint();
         }
         else {
             throw new AutomaticStartingPointException("Auto starting point is only supported for vehicles!");
@@ -256,40 +265,11 @@ public class BotController extends GlobalModelController{
     }
 
     // Create multiple bots of a certain type in worker back-end
-    private boolean instantiateBots(String type, int amount)
-    {
-        SimBot bot = null;
-        boolean existingType = true;
+    private boolean instantiateBots(String type, int amount, boolean autoStartPoint) throws AutomaticStartingPointException {
 
-        switch(type.toLowerCase().trim()) {
-            case "car":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            case "drone":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            case "f1":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            default:
-                existingType = false;
-                terminal.printTerminalInfo("Bottype: '" + type + "' is unknown!");
-                terminal.printTerminalInfo("Known types: {car | drone | f1}");
-        }
-        if(bot == null)
+        for(int i = 0; i < amount; i++)
         {
-            terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
-            return false;
-        }
-        else
-        {
-            terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
-        }
-
-        int i = 1;
-        while(i < amount && bot != null)
-        {
-            bot = dispatchService.instantiateBot(type);
+            SimBot bot = dispatchService.instantiateBot(type);
             if(bot == null)
             {
                 terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
@@ -297,11 +277,11 @@ public class BotController extends GlobalModelController{
             }
             else
             {
+                if (autoStartPoint) setAutoStart(bot); // may throw exception if problems
                 terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             }
-            i++;
         }
-        return existingType;
+        return true;
     }
 
     // Start both with certain ID in worker back-end

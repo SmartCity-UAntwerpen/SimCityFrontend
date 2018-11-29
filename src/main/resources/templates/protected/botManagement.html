@@ -67,7 +67,15 @@
             <button class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
             <span class="sr-only">Info: </span>
-            <span id="botStartingPointFailedAlert" th:text="#{settings.alerts.botStartingPointFailed}">Bot was created without automatic starting point</span>
+            <span id="botStartingPointFailedAlert" th:text="#{settings.alerts.botStartingPointFailed}">Bot was created without automatic starting point</span><br/>
+            <span th:text="${errormsg}"></span>
+        </div>
+        <div th:if="${param.botsStartingPointFailed}" class="alert alertbox alert-warning fade in" role="alert">
+            <button class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Info: </span>
+            <span id="botsStartingPointFailedAlert" th:text="#{settings.alerts.botsStartingPointFailed}">Bot creation was halted because of a starting point error.</span><br/>
+            <span th:text="${errormsg}"></span>
         </div>
         <div th:if="${param.botStartedFailed}" class="alert alertbox alert-warning fade in" role="alert">
             <button class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
@@ -158,12 +166,12 @@
                             <td th:text="${aBot.name}">Bot name</td>
                             <td th:text="${aBot.type}">Type</td>
                             <td th:text="${aBot.getBotStatus().getRunningState()}">Status</td>
-                            <td><a th:href="@{'/workers/0/bots/run/' + __${aBot.id}__}" type="button" class="btn btn-success btn-xs" th:title="#{run}"><span class="glyphicon glyphicon-play"></span></a></td>
+                            <td><a th:href="@{'/bots/run/' + __${aBot.id}__}" type="button" class="btn btn-success btn-xs" th:title="#{run}"><span class="glyphicon glyphicon-play"></span></a></td>
                             <td><a type="button" class="btn btn-primary btn-xs" th:title="#{edit}" data-toggle="modal" th:attr="data-target='#editBotModal'+${aBot.id}"><span class="glyphicon glyphicon-pencil"></span></a></td>
                             <div th:replace="protected/modals/editBotModal :: editBotModal"></div>
-                            <td><a th:href="@{'/workers/0/bots/stop/' + __${aBot.id}__}" type="button" class="btn btn-warning btn-xs" th:title="#{stop}"><span class="glyphicon glyphicon-stop"></span></a></td>
-                            <td><a th:href="@{'/workers/0/bots/restart/' + __${aBot.id}__}" type="button" class="btn btn-default btn-xs" th:title="#{restart}"><span class="glyphicon glyphicon-repeat"></span></a></td>
-                            <td><a th:href="@{'/workers/0/bots/delete/' + __${aBot.id}__}" type="button" class="btn btn-danger btn-xs" th:title="#{delete}"><span class="glyphicon glyphicon-trash"></span></a></td>
+                            <td><a th:href="@{'/bots/stop/' + __${aBot.id}__}" type="button" class="btn btn-warning btn-xs" th:title="#{stop}"><span class="glyphicon glyphicon-stop"></span></a></td>
+                            <td><a th:href="@{'/bots/restart/' + __${aBot.id}__}" type="button" class="btn btn-default btn-xs" th:title="#{restart}"><span class="glyphicon glyphicon-repeat"></span></a></td>
+                            <td><a th:href="@{'/bots/delete/' + __${aBot.id}__}" type="button" class="btn btn-danger btn-xs" th:title="#{delete}"><span class="glyphicon glyphicon-trash"></span></a></td>
                             <td><a type="button" class="btn btn-info btn-xs" th:title="#{info}" data-toggle="modal" th:attr="data-target='#showBotModal'+${aBot.id}+${aBot.name}+${aBot.type}+${aBot.getBotStatus().getRunningState()}+${aBot.getSimSpeed()}+${aBot.getStartPoint()}"><span class="glyphicon glyphicon-info-sign"></span></a></td>
                             <div th:replace="protected/modals/showBotModal :: showBotModal"></div>
                         </tr>
