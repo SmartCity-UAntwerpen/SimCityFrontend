@@ -9,6 +9,7 @@ import be.uantwerpen.sc.repositories.security.PermissionRepository;
 import be.uantwerpen.sc.repositories.security.RoleRepository;
 import be.uantwerpen.sc.repositories.security.UserRepository;
 import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
+import be.uantwerpen.sc.services.sim.SimWorkerFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class DatabaseLoaderDevelopment
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final SimWorkerRepository simWorkerRepository;
+
+    @Autowired
+    SimWorkerFileService simWorkerFileService;
 
     @Autowired
     public DatabaseLoaderDevelopment(PermissionRepository permissionRepos, RoleRepository roleRepos, UserRepository userRepos, SimWorkerRepository simWorkerRepos)
@@ -108,10 +112,7 @@ public class DatabaseLoaderDevelopment
     // Configure initial workers
     private void initWorkerDatabase()
     {
-        //Test worker
-        SimWorker worker1 = new SimWorker("worker-1", "localhost:7777", SimWorkerType.car);
-
-        //Save workers to database
-        simWorkerRepository.save(worker1);
+        List<SimWorker> workers =  simWorkerFileService.getWorkers();
+        simWorkerRepository.save(workers);
     }
 }
