@@ -22,5 +22,5 @@ public interface SimWorkerRepository extends CrudRepository<SimWorker,Long>
 
     SimWorker findById(Long id);
 
-    SimWorker findByWorkerType(SimWorkerType workerType);
+    //SimWorker findByWorkerType(SimWorkerType workerType);
 }

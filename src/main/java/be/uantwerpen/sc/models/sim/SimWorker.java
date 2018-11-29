@@ -2,14 +2,14 @@ package be.uantwerpen.sc.models.sim;
 
 import be.uantwerpen.sc.models.MyAbstractPersistable;
 import be.uantwerpen.sc.services.sockets.SimSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Thomas on 03/04/2016.
@@ -19,7 +19,8 @@ import java.util.List;
 @Table(name = "worker", schema = "", catalog = "simcity")
 public class SimWorker extends MyAbstractPersistable<Long>
 {
-    //private long workerId;
+    private static final Logger logger = LoggerFactory.getLogger(SimWorker.class);
+
     private String workerName;
     private String serverURL;
     private SimWorkerType workerType;
@@ -28,7 +29,6 @@ public class SimWorker extends MyAbstractPersistable<Long>
 
     public SimWorker()
     {
-        //this.workerId = 0L;
         this.workerName = "";
         this.workerType = null;
         this.serverURL = null;
@@ -38,23 +38,12 @@ public class SimWorker extends MyAbstractPersistable<Long>
 
     public SimWorker(String workerName, String serverURL, SimWorkerType workerType)
     {
-        //this.workerId = 0L;
         this.workerName = workerName;
         this.workerType = workerType;
         this.serverURL = serverURL;
         this.recordTime = null;
         this.status = "UNKNOWN";
     }
-
-//    public void setWorkerId(long id)
-//    {
-//        this.workerId = id;
-//    }
-//
-//    public long getWorkerId()
-//    {
-//        return this.workerId;
-//    }
 
     public void setWorkerName(String workerName)
     {
@@ -113,34 +102,33 @@ public class SimWorker extends MyAbstractPersistable<Long>
             SimSocket simSocket = new SimSocket(new Socket(uri, port));
             simSocket.setTimeOut(500);
 
-            System.out.println("retrieving status from worker on "+uri+" on port "+port);
+            logger.info("Retrieving status from worker on " + uri + " on port " + port);
 
             //Send data over socket
             if(simSocket.sendMessage("ping\n"))
             {
                 String response = simSocket.getMessage();
-                System.out.println(response);
                 while(response == null)
                 {
                     response = simSocket.getMessage();
                 }
                 //Receive response when message is successfully received
                 if(response.equalsIgnoreCase("PONG")) {
-                    System.out.println("Ping successfull");
+                    logger.info("Ping successfull");
                     simSocket.close();
                     this.status = "ONLINE";
                 } else {
-                    System.out.println("Unknown response received.");
+                    logger.error("Unknown response received.");
                     simSocket.close();
                     this.status = "ERROR";
                 }
             } else {
-                System.out.println("Socket connection could not be established.");
+                logger.warn("Socket connection could not be established.");
                 simSocket.close();
                 this.status = "CONNECTION ERROR";
             }
         } catch (IOException e) {
-            System.out.println("I/O exception occurred!");
+            logger.warn("I/O exception occurred!");
             this.status = "CONNECTION ERROR";
         }
     }

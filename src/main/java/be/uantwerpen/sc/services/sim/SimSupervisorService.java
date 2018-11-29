@@ -303,4 +303,3 @@ public class SimSupervisorService
         return workerBots;
     }
 }
-

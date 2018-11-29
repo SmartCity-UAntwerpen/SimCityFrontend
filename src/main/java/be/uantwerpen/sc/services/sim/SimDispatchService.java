@@ -2,7 +2,6 @@ package be.uantwerpen.sc.services.sim;
 
 import be.uantwerpen.sc.models.sim.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,24 +16,6 @@ public class SimDispatchService
 
     @Autowired
     SimWorkerService workerService;
-
-    @Value("${rc.core.ip}")
-    private String robotCoreIp;
-
-    @Value("${ds.core.ip}")
-    private String droneCoreIp;
-
-    @Value("${f1.core.ip}")
-    private String f1CoreIp;
-
-    @Value("#{new Integer(${rc.core.port})}")
-    private int robotCorePort;
-
-    @Value("#{new Integer(${ds.core.port})}")
-    private int droneCorePort;
-
-    @Value("#{new Integer(${f1.core.port})}")
-    private int f1CorePort;
 
     public SimDispatchService()
     {
@@ -64,19 +45,18 @@ public class SimDispatchService
     {
         SimBot simBot;
 
-        // Find a worker of the bot type to fill the workerId field in the bot
+        // Find a worker of the bot type to fill the workerId, ip and port field of the new bot
         long workerId = 0L;
         String workerServerURL = "";
 
-        for(SimWorker worker : workerService.findAll())
-            if(worker.getWorkerType().toString().equals(botType))
+        for(SimWorker worker : workerService.findWorkersByType(botType))
+        {
+            if(worker.getStatus().equals("ONLINE"))
             {
-                if(worker.getStatus().equals("ONLINE"))
-                {
-                    workerId = worker.getId();
-                    workerServerURL = worker.getServerURL();
-                }
+                workerId = worker.getId();
+                workerServerURL = worker.getServerURL();
             }
+        }
 
         String[] ipPort = workerServerURL.split(":");
 

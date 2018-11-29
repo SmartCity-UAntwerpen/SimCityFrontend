@@ -7,6 +7,7 @@ import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,21 @@ public class SimWorkerService
     {
         return this.simWorkerRepository.findAll();
     }
+
+    public SimWorker findById(Long id)
+    {
+        return simWorkerRepository.findById(id);
+    }
+
+    public SimWorker findByWorkerName(String workerName)
+    {
+        return simWorkerRepository.findByWorkerName(workerName);
+    }
+
+//    public SimWorker findByWorkerType(SimWorkerType workerType)
+//    {
+//        return simWorkerRepository.findByWorkerType(workerType);
+//    }
 
     public boolean delete(String workerName)
     {
@@ -109,23 +125,17 @@ public class SimWorkerService
         return this.simWorkerRepository.findAll().size();
     }
 
-    public SimWorker findByWorkerName(String workerName)
+    public List<SimWorker> findWorkersByType(String workerType)
     {
-        return simWorkerRepository.findByWorkerName(workerName);
-    }
+        List<SimWorker> workers = new ArrayList<>();
 
-//    public SimWorker findByWorkerId(Long workerId)
-//    {
-//        return simWorkerRepository.findByWorkerId(workerId);
-//    }
-
-    public SimWorker findById(Long id)
-    {
-        return simWorkerRepository.findById(id);
-    }
-
-    public SimWorker findByWorkerType(SimWorkerType workerType)
-    {
-        return simWorkerRepository.findByWorkerType(workerType);
+        for(SimWorker worker : this.findAll())
+        {
+            if(worker.getWorkerType().toString().equals(workerType))
+            {
+                workers.add(worker);
+            }
+        }
+        return workers;
     }
 }
