@@ -137,4 +137,13 @@ public abstract class SimVehicle extends SimBot
                 return false;
         }
     }
+
+    /**
+     * Set the vehicle to an automatic startpoint by intelligently choosing the best place
+     * @return If it was succesful or not
+     */
+    public boolean setAutomaticStartPoint() {
+        System.out.println("Setting automatic starting point is not supported!");
+        return false;
+    }
 }

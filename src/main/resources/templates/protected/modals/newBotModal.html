@@ -20,6 +20,13 @@
                                         th:text="${typeOption}">
                                 </option>
                             </select>
+
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" name="autoStartPoint" id="autoStartPoint" value="true" class="form-check" checked="checked"/>
+                                <span th:text="#{modal.newbot.autoStartPoint}">Set starting point automatically</span></label>
+                             </div>
+
                             <script type="text/javascript" th:src="@{/js/URLparser.js}"></script>
                         </div>
                     </div>

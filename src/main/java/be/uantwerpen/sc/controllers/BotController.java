@@ -2,8 +2,10 @@ package be.uantwerpen.sc.controllers;
 
 import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimForm;
+import be.uantwerpen.sc.models.sim.SimVehicle;
 import be.uantwerpen.sc.services.sim.SimDispatchService;
 import be.uantwerpen.sc.services.sim.SimSupervisorService;
+import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.Terminal;
 import be.uantwerpen.sc.tools.TypesList;
@@ -16,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,17 +66,19 @@ public class BotController extends GlobalModelController{
     // Create bot
     @RequestMapping(value="/workers/{workerId}/bots/create/{type}")
     @PreAuthorize("hasRole('logon')")
-    public String createBot(@Validated @ModelAttribute("type") String type, BindingResult result, ModelMap model)
+    public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, BindingResult result, ModelMap model)
     {
-        if(this.instantiateBot(type))
-        {
-            return "redirect:/bots/?botCreatedSuccess";
+        try {
+            if (this.instantiateBot(type, autoStartPoint)) {
+                return "redirect:/bots/?botCreatedSuccess";
+            } else {
+                return "redirect:/bots/?botCreatedFailed";
+            }
         }
-        else
-        {
-            return "redirect:/bots/?botCreatedFailed";
+        catch (AutomaticStartingPointException e) {
+            System.out.println("Error while settings starting point: "+e.getMessage());
+            return "redirect:/bots/?botStartingPointFailed";
         }
-
     }
 
     // Deploy multiple bots of a certain type at once
@@ -84,11 +89,11 @@ public class BotController extends GlobalModelController{
 
         if(this.instantiateBots(type, Integer.parseInt(amount)))
         {
-            return "redirect:/workers/management/?botsDeployedSuccess";
+            return "redirect:/bots/?botsDeployedSuccess";
         }
         else
         {
-            return "redirect:/workers/management/?botsDeployedFailed";
+            return "redirect:/bots/?botsDeployedFailed";
         }
 
     }
@@ -205,7 +210,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Create bot in worker back-end
-    private boolean instantiateBot(String type)
+    private boolean instantiateBot(String type, boolean autoStartPoint) throws AutomaticStartingPointException
     {
         SimBot bot;
 
@@ -229,6 +234,7 @@ public class BotController extends GlobalModelController{
         if(bot != null)
         {
             terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
+            if(autoStartPoint) setAutoStart(bot); // could throw exception if not possible
             return true;
         }
         else
@@ -236,6 +242,17 @@ public class BotController extends GlobalModelController{
             terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
             return false;
         }
+    }
+
+    private void setAutoStart(SimBot bot) throws AutomaticStartingPointException {
+        if(bot instanceof SimVehicle) {
+            SimVehicle vehicle = (SimVehicle) bot;
+            if(!vehicle.setAutomaticStartPoint()) throw new AutomaticStartingPointException("Something went wrong :(");;
+        }
+        else {
+            throw new AutomaticStartingPointException("Auto starting point is only supported for vehicles!");
+        }
+
     }
 
     // Create multiple bots of a certain type in worker back-end
