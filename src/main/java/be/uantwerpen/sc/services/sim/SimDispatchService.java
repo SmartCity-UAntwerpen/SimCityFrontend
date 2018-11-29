@@ -49,15 +49,8 @@ public class SimDispatchService
         {
             return null;
         }
-        // Find a worker of the bot type to fill the workerId field in the bot
-        long workerId = 0L;
-        for(SimWorker worker : workerService.findAll())
-            if(worker.getWorkerType().toString().equals(type))
-            {
-                workerId = worker.getId();
-            }
 
-        if(supervisorService.addNewBot(bot,workerId))
+        if(supervisorService.addNewBot(bot))
         {
             return bot;
         }
@@ -71,19 +64,38 @@ public class SimDispatchService
     {
         SimBot simBot;
 
+        // Find a worker of the bot type to fill the workerId field in the bot
+        long workerId = 0L;
+        String workerServerURL = "";
+
+        for(SimWorker worker : workerService.findAll())
+            if(worker.getWorkerType().toString().equals(botType))
+            {
+                if(worker.getStatus().equals("ONLINE"))
+                {
+                    workerId = worker.getId();
+                    workerServerURL = worker.getServerURL();
+                }
+            }
+
+        String[] ipPort = workerServerURL.split(":");
+
         switch(botType.toLowerCase().trim())
         {
             case "car":
                 simBot = new SimCar();
-                simBot.setServerCoreAddress(robotCoreIp, robotCorePort);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             case "drone":
                 simBot = new SimDrone();
-                simBot.setServerCoreAddress(droneCoreIp, droneCorePort);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             case "f1":
                 simBot = new SimF1();
-                simBot.setServerCoreAddress(f1CoreIp, f1CorePort);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             default:
                 simBot = null;
