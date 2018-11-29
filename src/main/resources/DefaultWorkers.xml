@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workers>
+    <worker>
+        <name>Car-worker</name>
+        <host>localhost</host>
+        <port>7777</port>
+        <type>Car</type>
+    </worker>
+    <worker>
+        <name>Drone-worker</name>
+        <host>143.129.39.127</host>
+        <port>8888</port>
+        <type>Drone</type>
+    </worker>
+    <worker>
+        <name>F1-worker</name>
+        <host>43.129.39.127</host>
+        <port>9999</port>
+        <type>F1</type>
+    </worker>
+</workers>
