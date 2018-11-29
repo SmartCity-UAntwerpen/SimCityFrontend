@@ -64,7 +64,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Create bot
-    @RequestMapping(value="/workers/{workerId}/bots/create/{type}")
+    @RequestMapping(value="/bots/create/{type}")
     @PreAuthorize("hasRole('logon')")
     public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, BindingResult result, ModelMap model)
     {
@@ -82,7 +82,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Deploy multiple bots of a certain type at once
-    @RequestMapping(value="/workers/{workerId}/bots/deploy/{type}/{amount}")
+    @RequestMapping(value="/bots/deploy/{type}/{amount}")
     @PreAuthorize("hasRole('logon')")
     public String deployBots(ModelMap model, @PathVariable String type, @PathVariable String amount)
     {
@@ -99,7 +99,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Run bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/run/{botId}")
+    @RequestMapping(value="/bots/run/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String runBot(@PathVariable int botId, ModelMap model) throws Exception
     {
@@ -115,7 +115,7 @@ public class BotController extends GlobalModelController{
 
 /*
     // NOT IMPLEMENTED IN FRONTEND YET: Run bots with IDs in a certain range
-    @RequestMapping(value="/workers/{workerId}/bots/run/{botId1}/{botId2}")
+    @RequestMapping(value="/bots/run/{botId1}/{botId2}")
     @PreAuthorize("hasRole('logon')")
     public String runBots(ModelMap model)
     {
@@ -125,17 +125,17 @@ public class BotController extends GlobalModelController{
 
         if(this.startBots(botId1, botId2))
         {
-            return "redirect:/workers/{workerId}/bots/?botsStartedSuccess";
+            return "redirect:/bots/?botsStartedSuccess";
         }
         else
         {
-            return "redirect:/workers/{workerId}/bots/?botsStartedFailed";
+            return "redirect:/bots/?botsStartedFailed";
         }
     }
 */
 
     // Stop bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/stop/{botId}")
+    @RequestMapping(value="/bots/stop/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String stopBot(@PathVariable int botId, ModelMap model) throws Exception
     {
@@ -150,7 +150,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Restart bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/restart/{botId}")
+    @RequestMapping(value="/bots/restart/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String restartBot(@PathVariable int botId, ModelMap model)
     {
@@ -165,7 +165,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Delete bot with certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/delete/{botId}")
+    @RequestMapping(value="/bots/delete/{botId}")
     @PreAuthorize("hasRole('logon')")
     public String killBot(@PathVariable int botId, ModelMap model)
     {
@@ -195,7 +195,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Set property to value for bot with a certain ID
-    @RequestMapping(value="/workers/{workerId}/bots/set/{botId}/{property}/{value}")
+    @RequestMapping(value="/bots/set/{botId}/{property}/{value}")
     @PreAuthorize("hasRole('logon')")
     public String setBot(@PathVariable int botId, @PathVariable String property, @PathVariable String value, ModelMap model)
     {
