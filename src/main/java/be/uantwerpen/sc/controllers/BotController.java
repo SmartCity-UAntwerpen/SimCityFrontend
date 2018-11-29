@@ -9,6 +9,8 @@ import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.Terminal;
 import be.uantwerpen.sc.tools.TypesList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,8 @@ import java.util.List;
  */
 @Controller
 public class BotController extends GlobalModelController{
+
+    private static final Logger logger = LoggerFactory.getLogger(BotController.class);
 
     @Autowired
     SimDispatchService dispatchService;
@@ -77,7 +81,7 @@ public class BotController extends GlobalModelController{
             }
         }
         catch (AutomaticStartingPointException e) {
-            System.out.println("Error while settings starting point: "+e.getMessage());
+            logger.warn("Error while settings starting point: "+e.getMessage());
             redir.addFlashAttribute("errormsg",e.getMessage());
             return "redirect:/bots/?botStartingPointFailed";
         }
@@ -97,7 +101,7 @@ public class BotController extends GlobalModelController{
             }
         }
         catch (AutomaticStartingPointException e) {
-            System.out.println("Error while settings starting point for bots: "+e.getMessage());
+            logger.warn("Error while settings starting point for bots: "+e.getMessage());
             redir.addFlashAttribute("errormsg",e.getMessage());
             return "redirect:/bots/?botsStartingPointFailed";
         }
