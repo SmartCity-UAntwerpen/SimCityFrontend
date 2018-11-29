@@ -69,6 +69,12 @@
             <span class="sr-only">Info: </span>
             <span id="botStartingPointFailedAlert" th:text="#{settings.alerts.botStartingPointFailed}">Bot was created without automatic starting point</span>
         </div>
+        <div th:if="${param.botsStartingPointFailed}" class="alert alertbox alert-warning fade in" role="alert">
+            <button class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Info: </span>
+            <span id="botsStartingPointFailedAlert" th:text="#{settings.alerts.botsStartingPointFailed}">Bot creation was halted because of a starting point error.</span>
+        </div>
         <div th:if="${param.botStartedFailed}" class="alert alertbox alert-warning fade in" role="alert">
             <button class="close" data-dismiss="alert" aria-label="Close" aria-hidden="true">&times;</button>
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>

@@ -87,15 +87,17 @@ public class BotController extends GlobalModelController{
     public String deployBots(ModelMap model, @PathVariable String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, @PathVariable String amount)
     {
 
-        if(this.instantiateBots(type, Integer.parseInt(amount), autoStartPoint))
-        {
-            return "redirect:/bots/?botsDeployedSuccess";
+        try {
+            if (this.instantiateBots(type, Integer.parseInt(amount), autoStartPoint)) {
+                return "redirect:/bots/?botsDeployedSuccess";
+            } else {
+                return "redirect:/bots/?botsDeployedFailed";
+            }
         }
-        else
-        {
-            return "redirect:/bots/?botsDeployedFailed";
+        catch (AutomaticStartingPointException e) {
+            System.out.println("Error while settings starting point for bots: "+e.getMessage());
+            return "redirect:/bots/?botsStartingPointFailed";
         }
-
     }
 
     // Run bot with certain ID
@@ -256,7 +258,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Create multiple bots of a certain type in worker back-end
-    private boolean instantiateBots(String type, int amount, boolean autoStartPoint) {
+    private boolean instantiateBots(String type, int amount, boolean autoStartPoint) throws AutomaticStartingPointException {
         SimBot bot = null;
         boolean existingType = true;
 
@@ -286,7 +288,7 @@ public class BotController extends GlobalModelController{
         }
 
         int i = 1;
-        while(i < amount && bot != null)
+        while(i < amount)
         {
             bot = dispatchService.instantiateBot(type);
             if(bot == null)
@@ -296,17 +298,12 @@ public class BotController extends GlobalModelController{
             }
             else
             {
-                try {
-                    if (autoStartPoint) setAutoStart(bot);
-                }
-                catch (AutomaticStartingPointException e) {
-                    System.out.println("Automatic starting point for bot "+bot.getName()+" failed!");
-                }
+                if (autoStartPoint) setAutoStart(bot); // may throw exception if problems
                 terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             }
             i++;
         }
-        return existingType;
+        return true;
     }
 
     // Start both with certain ID in worker back-end
