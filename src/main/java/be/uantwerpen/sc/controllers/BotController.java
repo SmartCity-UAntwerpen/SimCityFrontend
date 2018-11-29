@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class BotController extends GlobalModelController{
     // Create bot
     @RequestMapping(value="/bots/create/{type}")
     @PreAuthorize("hasRole('logon')")
-    public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, BindingResult result, ModelMap model)
+    public String createBot(@Validated @ModelAttribute("type") String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, RedirectAttributes redir)
     {
         try {
             if (this.instantiateBot(type, autoStartPoint)) {
@@ -77,6 +78,7 @@ public class BotController extends GlobalModelController{
         }
         catch (AutomaticStartingPointException e) {
             System.out.println("Error while settings starting point: "+e.getMessage());
+            redir.addFlashAttribute("errormsg",e.getMessage());
             return "redirect:/bots/?botStartingPointFailed";
         }
     }
@@ -84,7 +86,7 @@ public class BotController extends GlobalModelController{
     // Deploy multiple bots of a certain type at once
     @RequestMapping(value="/bots/deploy/{type}/{amount}")
     @PreAuthorize("hasRole('logon')")
-    public String deployBots(ModelMap model, @PathVariable String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, @PathVariable String amount)
+    public String deployBots(ModelMap model, @PathVariable String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, @PathVariable String amount, RedirectAttributes redir)
     {
 
         try {
@@ -96,6 +98,7 @@ public class BotController extends GlobalModelController{
         }
         catch (AutomaticStartingPointException e) {
             System.out.println("Error while settings starting point for bots: "+e.getMessage());
+            redir.addFlashAttribute("errormsg",e.getMessage());
             return "redirect:/bots/?botsStartingPointFailed";
         }
     }
