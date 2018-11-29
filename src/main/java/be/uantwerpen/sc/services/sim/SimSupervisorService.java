@@ -75,14 +75,13 @@ public class SimSupervisorService
         }
     }
 
-    public boolean addNewBot(SimBot bot, long workerId)
+    public boolean addNewBot(SimBot bot)
     {
         boolean status;
         int nextId = this.getNextId();
 
         bot.setId(nextId);
         bot.setName("bot-" + nextId);
-        bot.setWorkerId(workerId);
 
         if(bot.create())
         {
