@@ -1,5 +1,6 @@
 package be.uantwerpen.sc.models.sim;
 
+import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.Terminal;
 
 /**
@@ -140,10 +141,9 @@ public abstract class SimVehicle extends SimBot
 
     /**
      * Set the vehicle to an automatic startpoint by intelligently choosing the best place
-     * @return If it was succesful or not
+     * @throws AutomaticStartingPointException when something goes wrong during provisioning
      */
-    public boolean setAutomaticStartPoint() {
-        System.out.println("Setting automatic starting point is not supported!");
-        return false;
+    public void setAutomaticStartPoint() throws AutomaticStartingPointException {
+        throw new AutomaticStartingPointException("This function is not supported yet!");
     }
 }

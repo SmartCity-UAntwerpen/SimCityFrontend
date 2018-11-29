@@ -249,7 +249,7 @@ public class BotController extends GlobalModelController{
     private void setAutoStart(SimBot bot) throws AutomaticStartingPointException {
         if(bot instanceof SimVehicle) {
             SimVehicle vehicle = (SimVehicle) bot;
-            if(!vehicle.setAutomaticStartPoint()) throw new AutomaticStartingPointException("Something went wrong :(");;
+            vehicle.setAutomaticStartPoint();
         }
         else {
             throw new AutomaticStartingPointException("Auto starting point is only supported for vehicles!");
@@ -259,38 +259,10 @@ public class BotController extends GlobalModelController{
 
     // Create multiple bots of a certain type in worker back-end
     private boolean instantiateBots(String type, int amount, boolean autoStartPoint) throws AutomaticStartingPointException {
-        SimBot bot = null;
-        boolean existingType = true;
 
-        switch(type.toLowerCase().trim()) {
-            case "car":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            case "drone":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            case "f1":
-                bot = dispatchService.instantiateBot(type);
-                break;
-            default:
-                existingType = false;
-                terminal.printTerminalInfo("Bottype: '" + type + "' is unknown!");
-                terminal.printTerminalInfo("Known types: {car | drone | f1}");
-        }
-        if(bot == null)
+        for(int i = 0; i < amount; i++)
         {
-            terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
-            return false;
-        }
-        else
-        {
-            terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
-        }
-
-        int i = 1;
-        while(i < amount)
-        {
-            bot = dispatchService.instantiateBot(type);
+            SimBot bot = dispatchService.instantiateBot(type);
             if(bot == null)
             {
                 terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
@@ -301,7 +273,6 @@ public class BotController extends GlobalModelController{
                 if (autoStartPoint) setAutoStart(bot); // may throw exception if problems
                 terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             }
-            i++;
         }
         return true;
     }
