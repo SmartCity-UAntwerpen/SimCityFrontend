@@ -84,10 +84,10 @@ public class BotController extends GlobalModelController{
     // Deploy multiple bots of a certain type at once
     @RequestMapping(value="/bots/deploy/{type}/{amount}")
     @PreAuthorize("hasRole('logon')")
-    public String deployBots(ModelMap model, @PathVariable String type, @PathVariable String amount)
+    public String deployBots(ModelMap model, @PathVariable String type, @RequestParam(value = "autoStartPoint", defaultValue = "false") Boolean autoStartPoint, @PathVariable String amount)
     {
 
-        if(this.instantiateBots(type, Integer.parseInt(amount)))
+        if(this.instantiateBots(type, Integer.parseInt(amount), autoStartPoint))
         {
             return "redirect:/bots/?botsDeployedSuccess";
         }
@@ -256,8 +256,7 @@ public class BotController extends GlobalModelController{
     }
 
     // Create multiple bots of a certain type in worker back-end
-    private boolean instantiateBots(String type, int amount)
-    {
+    private boolean instantiateBots(String type, int amount, boolean autoStartPoint) {
         SimBot bot = null;
         boolean existingType = true;
 
@@ -297,6 +296,12 @@ public class BotController extends GlobalModelController{
             }
             else
             {
+                try {
+                    if (autoStartPoint) setAutoStart(bot);
+                }
+                catch (AutomaticStartingPointException e) {
+                    System.out.println("Automatic starting point for bot "+bot.getName()+" failed!");
+                }
                 terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             }
             i++;
