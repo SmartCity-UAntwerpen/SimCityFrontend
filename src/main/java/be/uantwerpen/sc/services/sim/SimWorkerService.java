@@ -35,11 +35,6 @@ public class SimWorkerService
         return simWorkerRepository.findByWorkerName(workerName);
     }
 
-//    public SimWorker findByWorkerType(SimWorkerType workerType)
-//    {
-//        return simWorkerRepository.findByWorkerType(workerType);
-//    }
-
     public boolean delete(String workerName)
     {
         SimWorker w = findByWorkerName(workerName);
@@ -138,4 +133,5 @@ public class SimWorkerService
         }
         return workers;
     }
+
 }

@@ -77,7 +77,6 @@ public class SimSupervisorService
 
     public boolean addNewBot(SimBot bot)
     {
-        boolean status;
         int nextId = this.getNextId();
 
         bot.setId(nextId);
@@ -297,9 +296,16 @@ public class SimSupervisorService
         for(SimBot simBot : this.bots)
         {
             if(simBot.getWorkerId() == workerID)
-            workerBots.add(simBot);
+            {
+                workerBots.add(simBot);
+            }
         }
 
         return workerBots;
+    }
+
+    public int amountBotsWorker(Long workerId)
+    {
+        return this.findAllBotsByWorkerID(workerId).size();
     }
 }

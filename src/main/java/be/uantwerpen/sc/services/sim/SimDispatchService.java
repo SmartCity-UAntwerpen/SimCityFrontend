@@ -4,6 +4,8 @@ import be.uantwerpen.sc.models.sim.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by Thomas on 5/05/2017.
  */
@@ -46,18 +48,23 @@ public class SimDispatchService
         SimBot simBot;
 
         // Find a worker of the bot type to fill the workerId, ip and port field of the new bot
-        long workerId = 0L;
-        String workerServerURL = "";
+        List<SimWorker> botTypeWorkers = workerService.findWorkersByType(botType);
+        SimWorker lowestAmountBotsWorker = botTypeWorkers.get(0);
 
-        for(SimWorker worker : workerService.findWorkersByType(botType))
+        for(SimWorker worker : botTypeWorkers)
         {
             if(worker.getStatus().equals("ONLINE"))
             {
-                workerId = worker.getId();
-                workerServerURL = worker.getServerURL();
+                // Check workers of the botType and put the bot on the worker with least amount of bots
+                if(supervisorService.amountBotsWorker(worker.getId()) <= supervisorService.amountBotsWorker(lowestAmountBotsWorker.getId()))
+                {
+                    lowestAmountBotsWorker = worker;
+                }
             }
         }
 
+        long workerId = lowestAmountBotsWorker.getId();
+        String workerServerURL = lowestAmountBotsWorker.getServerURL();
         String[] ipPort = workerServerURL.split(":");
 
         switch(botType.toLowerCase().trim())
