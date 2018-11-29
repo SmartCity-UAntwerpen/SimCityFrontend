@@ -56,23 +56,23 @@ public class SimWorkerService
     {
         SimWorker w;
         Long i = 0L;
-        w = findByWorkerId(i);
+        w = findById(i);
 
         while(w != null && i <= this.getNumberOfWorkers() + 1)
         {
-            w = findByWorkerId(i);
+            w = findById(i);
             i++;
         }
         if(i <= this.getNumberOfWorkers() + 1)
         {
             if (i == 0L)
             {
-                worker.setWorkerId(0L);
+                worker.setId(0L);
                 this.simWorkerRepository.save(worker);
             }
             else
             {
-                worker.setWorkerId(i-1);
+                worker.setId(i-1);
                 this.simWorkerRepository.save(worker);
             }
             return true;
@@ -114,10 +114,10 @@ public class SimWorkerService
         return simWorkerRepository.findByWorkerName(workerName);
     }
 
-    public SimWorker findByWorkerId(Long workerId)
-    {
-        return simWorkerRepository.findByWorkerId(workerId);
-    }
+//    public SimWorker findByWorkerId(Long workerId)
+//    {
+//        return simWorkerRepository.findByWorkerId(workerId);
+//    }
 
     public SimWorker findById(Long id)
     {

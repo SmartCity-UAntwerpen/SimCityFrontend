@@ -1,9 +1,6 @@
 package be.uantwerpen.sc.services.sim;
 
-import be.uantwerpen.sc.models.sim.SimBot;
-import be.uantwerpen.sc.models.sim.SimCar;
-import be.uantwerpen.sc.models.sim.SimDrone;
-import be.uantwerpen.sc.models.sim.SimF1;
+import be.uantwerpen.sc.models.sim.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +14,9 @@ public class SimDispatchService
 {
     @Autowired
     SimSupervisorService supervisorService;
+
+    @Autowired
+    SimWorkerService workerService;
 
     @Value("${rc.core.ip}")
     private String robotCoreIp;
@@ -49,8 +49,15 @@ public class SimDispatchService
         {
             return null;
         }
+        // Find a worker of the bot type to fill the workerId field in the bot
+        long workerId = 0L;
+        for(SimWorker worker : workerService.findAll())
+            if(worker.getWorkerType().toString().equals(type))
+            {
+                workerId = worker.getId();
+            }
 
-        if(supervisorService.addNewBot(bot))
+        if(supervisorService.addNewBot(bot,workerId))
         {
             return bot;
         }

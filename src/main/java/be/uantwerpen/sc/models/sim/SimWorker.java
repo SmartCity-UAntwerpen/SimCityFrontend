@@ -19,7 +19,7 @@ import java.util.List;
 @Table(name = "worker", schema = "", catalog = "simcity")
 public class SimWorker extends MyAbstractPersistable<Long>
 {
-    private long workerId;
+    //private long workerId;
     private String workerName;
     private String serverURL;
     private SimWorkerType workerType;
@@ -28,7 +28,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
 
     public SimWorker()
     {
-        this.workerId = 0L;
+        //this.workerId = 0L;
         this.workerName = "";
         this.workerType = null;
         this.serverURL = null;
@@ -38,7 +38,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
 
     public SimWorker(String workerName, String serverURL, SimWorkerType workerType)
     {
-        this.workerId = 0L;
+        //this.workerId = 0L;
         this.workerName = workerName;
         this.workerType = workerType;
         this.serverURL = serverURL;
@@ -46,15 +46,15 @@ public class SimWorker extends MyAbstractPersistable<Long>
         this.status = "UNKNOWN";
     }
 
-    public void setWorkerId(long id)
-    {
-        this.workerId = id;
-    }
-
-    public long getWorkerId()
-    {
-        return this.workerId;
-    }
+//    public void setWorkerId(long id)
+//    {
+//        this.workerId = id;
+//    }
+//
+//    public long getWorkerId()
+//    {
+//        return this.workerId;
+//    }
 
     public void setWorkerName(String workerName)
     {
