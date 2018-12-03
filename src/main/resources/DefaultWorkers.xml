@@ -14,7 +14,7 @@
     </worker>
     <worker>
         <name>F1-worker</name>
-        <host>43.129.39.127</host>
+        <host>143.129.39.127</host>
         <port>9999</port>
         <type>F1</type>
     </worker>

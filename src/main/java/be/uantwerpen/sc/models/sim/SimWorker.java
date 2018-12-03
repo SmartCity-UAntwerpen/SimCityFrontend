@@ -102,7 +102,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
             SimSocket simSocket = new SimSocket(new Socket(uri, port));
             simSocket.setTimeOut(500);
 
-            logger.info("Retrieving status from worker on " + uri + " on port " + port);
+            logger.info("Retrieving status from worker on " + uri + " port " + port);
 
             //Send data over socket
             if(simSocket.sendMessage("ping\n"))
@@ -114,11 +114,11 @@ public class SimWorker extends MyAbstractPersistable<Long>
                 }
                 //Receive response when message is successfully received
                 if(response.equalsIgnoreCase("PONG")) {
-                    logger.info("Ping successfull");
+                    logger.info("Ping successfull with " + workerName);
                     simSocket.close();
                     this.status = "ONLINE";
                 } else {
-                    logger.error("Unknown response received.");
+                    logger.error("Unknown response received from " + workerName + " (ID: " + this.getId() + ")!");
                     simSocket.close();
                     this.status = "ERROR";
                 }
@@ -128,7 +128,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
                 this.status = "CONNECTION ERROR";
             }
         } catch (IOException e) {
-            logger.warn("I/O exception occurred!");
+            logger.warn("I/O exception occurred with worker: " + workerName + " (ID: " + this.getId() + ")!");
             this.status = "CONNECTION ERROR";
         }
     }
