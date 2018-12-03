@@ -17,7 +17,7 @@
                             <input type="text" class="form-control" id="workerName" th:field="*{workerName}"
                                    required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.newworker.fillName}+'\');'" oninput="this.setCustomValidity('')"/>
                             <label for="workerUrl" class="control" th:text="#{worker.serverUrl} + ':'">Worker URL:</label>
-                            <input type="text" class="form-control" id="workerUrl" th:field="*{serverURL}" pattern="[A-Za-z]{2,}:[0-9]{2,}"
+                            <input type="text" class="form-control" id="workerUrl" th:field="*{serverURL}" pattern="[A-Za-z0-9.]{2,}:[0-9]{2,}"
                                    required="true" th:oninvalid="'javascript:this.setCustomValidity(\''+#{modal.newworker.fillUrl}+'\');'" oninput="this.setCustomValidity('')"/>
                             <label for="workerType" class="control" th:text="#{worker.workerType} + ':'">Worker type:</label>
                             <select id="workerType" name="workerType" class="form-control">
