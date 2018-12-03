@@ -1,6 +1,7 @@
 package be.uantwerpen.sc.services.sim;
 
 import be.uantwerpen.sc.models.sim.*;
+import be.uantwerpen.sc.services.vehicleBackends.F1Backend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,12 @@ public class SimDispatchService
 
     @Autowired
     SimWorkerService workerService;
+
+    // Backends for the simulation classes. Necessary for creating startpoints
+    // TODO betere manier om dit aan te pakken?
+    // Misschien eigen startpuntservice
+    @Autowired
+    F1Backend f1Backend;
 
     public SimDispatchService()
     {
@@ -80,7 +87,7 @@ public class SimDispatchService
                 simBot.setWorkerId(workerId);
                 break;
             case "f1":
-                simBot = new SimF1();
+                simBot = new SimF1(f1Backend);
                 simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
                 simBot.setWorkerId(workerId);
                 break;
