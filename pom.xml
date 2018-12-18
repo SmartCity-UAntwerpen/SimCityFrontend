@@ -26,8 +26,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>be.uantwerpen.sc</groupId>
-			<artifactId>SCCommon</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>SmartCityCommon</artifactId>
+			<version>0.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -96,13 +96,6 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.38</version>
 		</dependency>
-
-		<!-- common files from the project -->
-		<dependency>
-			<groupId>be.uantwerpen.sc</groupId>
-			<artifactId>SmartCityCommon</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 	
 	<build>
@@ -116,4 +109,15 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>SmartCityCommon-mvn-repo</id>
+			<url>https://raw.github.com/SmartCity-UAntwerpen/SmartCityCommon/mvn-repo/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>
