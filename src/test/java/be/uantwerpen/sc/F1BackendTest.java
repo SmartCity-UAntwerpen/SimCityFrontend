@@ -23,7 +23,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ActiveProfiles("dev")
-@SpringApplicationConfiguration(classes = F1Backend.class)
+@SpringApplicationConfiguration(classes = SimCityApplication.class)
 @WebIntegrationTest
 public class F1BackendTest {
 
