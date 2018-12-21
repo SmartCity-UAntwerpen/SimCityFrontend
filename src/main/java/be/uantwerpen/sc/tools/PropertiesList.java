@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class PropertiesList
 
         try
         {
-            File propertiesFile = new File(classLoader.getResource(PROPERTIESLIST).toURI());
+            InputStream propertiesFile = classLoader.getResourceAsStream(PROPERTIESLIST);
 
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();

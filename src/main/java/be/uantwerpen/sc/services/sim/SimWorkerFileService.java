@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class SimWorkerFileService {
         ClassLoader classLoader = getClass().getClassLoader();
 
         try {
-            File typesFile = new File(classLoader.getResource(workersFile).toURI());
+            InputStream typesFile = classLoader.getResourceAsStream(workersFile);
 
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
