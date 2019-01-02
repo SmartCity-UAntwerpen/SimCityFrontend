@@ -19,6 +19,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Thomas on 03/04/2016.
@@ -43,9 +44,17 @@ public class WorkerController extends GlobalModelController
     // Delete worker with certain ID
     @RequestMapping(value="/workers/{id}/delete")
     @PreAuthorize("hasRole('logon')")
-    public String deleteUser(@Validated @ModelAttribute("worker") SimWorker worker, ModelMap model)
+    public String deleteWorker(@Validated @ModelAttribute("worker") SimWorker worker, ModelMap model)
     {
-        if(workerService.delete(worker.getId()))
+        long workerId = worker.getId();
+        // Check if no bots are using this worker
+        List<SimBot> botList = supervisorService.findAllBotsByWorkerID(workerId);
+
+        // Don't delete if it still has bots assigned
+        if(botList.size() > 0) {
+            return "redirect:/settings/workers?errorWorkerHasBots";
+        }
+        else if(workerService.delete(workerId))
         {
             model.clear();
             return "redirect:/settings/workers?workerRemoved";
