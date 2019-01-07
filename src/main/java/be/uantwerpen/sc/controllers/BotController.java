@@ -242,7 +242,8 @@ public class BotController extends GlobalModelController{
 
         if(bot != null)
         {
-            terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
+            logger.info("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
+            //terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             if(autoStartPoint) setAutoStart(bot); // could throw exception if not possible
             return true;
         }

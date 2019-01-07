@@ -108,6 +108,8 @@ public class SimCar extends SimVehicle
         }
     }
 
+    // TODO Can be removed. Is in SimVehicle.
+    /**
     @Override
     public void setAutomaticStartPoint() throws AutomaticStartingPointException {
         try {
@@ -132,5 +134,6 @@ public class SimCar extends SimVehicle
             throw new AutomaticStartingPointException("Error contacting deployer. "+e.getMessage());
         }
     }
+    **/
 }
 

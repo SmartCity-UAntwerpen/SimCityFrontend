@@ -37,6 +37,8 @@ public class SimF1 extends SimVehicle
     public SimF1(F1Backend backend) {
         super("bot", 0, 90);
         this.f1Backend = backend;
+
+        this.type = "f1";
     }
 
     @Override

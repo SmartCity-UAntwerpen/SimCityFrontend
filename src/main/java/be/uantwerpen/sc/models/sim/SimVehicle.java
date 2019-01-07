@@ -1,7 +1,11 @@
 package be.uantwerpen.sc.models.sim;
 
+import be.uantwerpen.sc.services.sockets.SimSocket;
 import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.Terminal;
+
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * Created by Thomas on 5/05/2017.
@@ -143,7 +147,29 @@ public abstract class SimVehicle extends SimBot
      * Set the vehicle to an automatic startpoint by intelligently choosing the best place
      * @throws AutomaticStartingPointException when something goes wrong during provisioning
      */
-    public void setAutomaticStartPoint() throws AutomaticStartingPointException {
-        throw new AutomaticStartingPointException("This function is not supported yet!");
+    public void setAutomaticStartPoint() throws AutomaticStartingPointException
+    {
+        try {
+            SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
+            simSocket.setTimeOut(500);
+
+            simSocket.sendMessage("set " + id + " startpoint vehicle\n");
+
+            String response = simSocket.getMessage();
+            while (response == null) {
+                response = simSocket.getMessage();
+            }
+
+            if (response.equalsIgnoreCase("NACK")) {
+                throw new AutomaticStartingPointException("Received NACK from deployer");
+            }
+
+            simSocket.close();
+            this.startPoint = -2;
+        }
+        catch(IOException e) {
+            throw new AutomaticStartingPointException("Error contacting deployer. "+e.getMessage());
+        }
+        //throw new AutomaticStartingPointException("This function is not supported yet!");
     }
 }
