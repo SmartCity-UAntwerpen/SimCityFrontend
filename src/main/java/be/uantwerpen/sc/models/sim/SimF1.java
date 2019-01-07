@@ -129,8 +129,13 @@ public class SimF1 extends SimVehicle
         Random rand = new Random();
         Long randomId = (Long) ids[rand.nextInt(ids.length)];
 
-        // Convert to int and set as startpoint
-        this.setStartPoint(Math.toIntExact(randomId));
+        try {
+            this.parseProperty("startpoint",randomId.toString());
+        } catch (Exception e) {
+           AutomaticStartingPointException startingPointException = new AutomaticStartingPointException(e.getMessage());
+           startingPointException.setStackTrace(e.getStackTrace()); // copy stacktrace for debugging
+           throw startingPointException;
+        }
     }
 }
 
