@@ -153,7 +153,7 @@ public abstract class SimVehicle extends SimBot
             SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
             simSocket.setTimeOut(500);
 
-            simSocket.sendMessage("set " + id + " startpoint vehicle\n");
+            simSocket.sendMessage("set " + id + " startpoint auto\n");
 
             String response = simSocket.getMessage();
             while (response == null) {
