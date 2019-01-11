@@ -23,6 +23,12 @@
                             <script type="text/javascript" th:src="@{/js/URLparser.js}"></script>
                             <label th:for="amount" class="control" th:text="#{bots.amount} + ':'">Amount:</label>
                             <input type="text" class="form-control" th:id="amount"/>
+
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="autoStartPoint" id="autoStartPoint" value="true" class="form-check" checked="checked"/>
+                                    <span th:text="#{modal.newbots.autoStartPoint}">Set starting point automatically</span></label>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

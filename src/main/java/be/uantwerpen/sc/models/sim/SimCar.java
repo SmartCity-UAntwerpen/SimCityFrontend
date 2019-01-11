@@ -1,6 +1,7 @@
 package be.uantwerpen.sc.models.sim;
 
 import be.uantwerpen.sc.services.sockets.SimSocket;
+import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -14,7 +15,7 @@ public class SimCar extends SimVehicle
 
     public SimCar()
     {
-        super("bot", 0, 90);
+        super("bot", -1, 90);
 
         this.type = "car";
     }
@@ -106,5 +107,33 @@ public class SimCar extends SimVehicle
                 return false;
         }
     }
+
+    // TODO Can be removed. Is in SimVehicle.
+    /**
+    @Override
+    public void setAutomaticStartPoint() throws AutomaticStartingPointException {
+        try {
+            SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
+            simSocket.setTimeOut(500);
+
+            simSocket.sendMessage("set " + id + " startpoint auto\n");
+
+            String response = simSocket.getMessage();
+            while (response == null) {
+                response = simSocket.getMessage();
+            }
+
+            if (response.equalsIgnoreCase("NACK")) {
+                throw new AutomaticStartingPointException("Received NACK from deployer");
+            }
+
+            simSocket.close();
+            this.startPoint = -2;
+        }
+        catch(IOException e) {
+            throw new AutomaticStartingPointException("Error contacting deployer. "+e.getMessage());
+        }
+    }
+    **/
 }
 

@@ -20,6 +20,7 @@ public abstract class SimBot implements Runnable
     protected String name;
     public String ip;
     public int port;
+    private long workerId;
 
     protected SimBot()
     {
@@ -27,6 +28,7 @@ public abstract class SimBot implements Runnable
         this.type = "bot";
         this.ip = "localhost";
         this.port = 1994;
+        this.workerId = 0L;
 
         this.name = "SimBot";
     }
@@ -283,6 +285,14 @@ public abstract class SimBot implements Runnable
             System.out.println("I/O exception occurred!");
             return false;
         }
+    }
+
+    public long getWorkerId() {
+        return workerId;
+    }
+
+    public void setWorkerId(long workerId) {
+        this.workerId = workerId;
     }
 
     abstract protected void simulationProcess();

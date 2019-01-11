@@ -1,9 +1,15 @@
 package be.uantwerpen.sc.models.sim;
 
+import be.uantwerpen.sc.models.sim.messages.F1WayPoint;
 import be.uantwerpen.sc.services.sockets.SimSocket;
+import be.uantwerpen.sc.services.vehicleBackends.F1Backend;
+import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by Thomas on 5/05/2017.
@@ -11,6 +17,9 @@ import java.net.Socket;
 // Class for simulated F1-car
 public class SimF1 extends SimVehicle
 {
+
+    private F1Backend f1Backend;
+
     public SimF1()
     {
         super("bot", 0, 90);
@@ -21,6 +30,13 @@ public class SimF1 extends SimVehicle
     public SimF1(String name, int startPoint, long simSpeed)
     {
         super(name, startPoint, simSpeed);
+
+        this.type = "f1";
+    }
+
+    public SimF1(F1Backend backend) {
+        super("bot", 0, 90);
+        this.f1Backend = backend;
 
         this.type = "f1";
     }
@@ -103,6 +119,24 @@ public class SimF1 extends SimVehicle
         {
             default:
                 return false;
+        }
+    }
+
+    @Override
+    public void setAutomaticStartPoint() throws AutomaticStartingPointException {
+        Map<Long, F1WayPoint> waypoints = f1Backend.getWayPoints();
+        Object[] ids =  waypoints.keySet().toArray();
+
+        // Choose random waypoint from the set
+        Random rand = new Random();
+        Long randomId = (Long) ids[rand.nextInt(ids.length)];
+
+        try {
+            this.parseProperty("startpoint",randomId.toString());
+        } catch (Exception e) {
+           AutomaticStartingPointException startingPointException = new AutomaticStartingPointException(e.getMessage());
+           startingPointException.setStackTrace(e.getStackTrace()); // copy stacktrace for debugging
+           throw startingPointException;
         }
     }
 }

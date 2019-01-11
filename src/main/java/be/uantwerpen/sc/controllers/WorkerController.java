@@ -1,7 +1,9 @@
 package be.uantwerpen.sc.controllers;
 
+import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimForm;
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.services.sim.SimSupervisorService;
 import be.uantwerpen.sc.services.sim.SimWorkerService;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.TypesList;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Thomas on 03/04/2016.
@@ -28,7 +31,7 @@ public class WorkerController extends GlobalModelController
     private SimWorkerService workerService;
 
     @Autowired
-    TypesList typesList;
+    private SimSupervisorService supervisorService;
 
     // Show worker page
     @RequestMapping(value = "/workers")
@@ -41,9 +44,17 @@ public class WorkerController extends GlobalModelController
     // Delete worker with certain ID
     @RequestMapping(value="/workers/{id}/delete")
     @PreAuthorize("hasRole('logon')")
-    public String deleteUser(@Validated @ModelAttribute("worker") SimWorker worker, ModelMap model)
+    public String deleteWorker(@Validated @ModelAttribute("worker") SimWorker worker, ModelMap model)
     {
-        if(workerService.delete(worker.getId()))
+        long workerId = worker.getId();
+        // Check if no bots are using this worker
+        List<SimBot> botList = supervisorService.findAllBotsByWorkerID(workerId);
+
+        // Don't delete if it still has bots assigned
+        if(botList.size() > 0) {
+            return "redirect:/settings/workers?errorWorkerHasBots";
+        }
+        else if(workerService.delete(workerId))
         {
             model.clear();
             return "redirect:/settings/workers?workerRemoved";
@@ -90,6 +101,7 @@ public class WorkerController extends GlobalModelController
         SimWorker w = workerService.findById(worker.getId());
         w.setWorkerName(worker.getWorkerName());
         w.setServerURL(worker.getServerURL());
+        w.setWorkerType(worker.getWorkerType());
 
         if(workerService.save(w))
         {
@@ -102,24 +114,14 @@ public class WorkerController extends GlobalModelController
     }
 
     // Show worker management page with bot actions
-    @RequestMapping(value="/workers/management", method= RequestMethod.GET)
-    public String manageWorker(ModelMap model, @Validated @ModelAttribute("type") String type) throws Exception
+    @RequestMapping(value="/workers/{workerId}/management/", method= RequestMethod.GET)
+    public String manageWorker(ModelMap model, @PathVariable String workerId) throws Exception
     {
-        List<String> types = new ArrayList<String>();
-        try {
-            types = typesList.getTypes();
-            model.addAttribute("types", types);
-        } catch (Exception e) {
-            types.add("No types could be loaded!");
-            e.printStackTrace();
-            model.addAttribute("types", types);
-        }
+        List<SimBot> workerBots = supervisorService.findAllBotsByWorkerID(Long.parseLong(workerId));
+        model.addAttribute("allWorkerBots", workerBots);
 
-        SimForm botForm = new SimForm();
-        List<String> properties = new PropertiesList().getProperties();
-
-        model.addAttribute("bot", botForm);
-        model.addAttribute("properties", properties);
+        SimWorker w = workerService.findById(Long.parseLong(workerId));
+        model.addAttribute("worker", w);
 
         return "protected/workerManagement";
     }

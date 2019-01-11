@@ -1,9 +1,14 @@
 package be.uantwerpen.sc.services.sim;
 
+import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Thomas on 03/04/2016.
@@ -18,6 +23,16 @@ public class SimWorkerService
     public Iterable<SimWorker> findAll()
     {
         return this.simWorkerRepository.findAll();
+    }
+
+    public SimWorker findById(Long id)
+    {
+        return simWorkerRepository.findById(id);
+    }
+
+    public SimWorker findByWorkerName(String workerName)
+    {
+        return simWorkerRepository.findByWorkerName(workerName);
     }
 
     public boolean delete(String workerName)
@@ -52,23 +67,23 @@ public class SimWorkerService
     {
         SimWorker w;
         Long i = 0L;
-        w = findByWorkerId(i);
+        w = findById(i);
 
         while(w != null && i <= this.getNumberOfWorkers() + 1)
         {
-            w = findByWorkerId(i);
+            w = findById(i);
             i++;
         }
         if(i <= this.getNumberOfWorkers() + 1)
         {
             if (i == 0L)
             {
-                worker.setWorkerId(0L);
+                worker.setId(0L);
                 this.simWorkerRepository.save(worker);
             }
             else
             {
-                worker.setWorkerId(i-1);
+                worker.setId(i-1);
                 this.simWorkerRepository.save(worker);
             }
             return true;
@@ -86,9 +101,10 @@ public class SimWorkerService
             if(w.getId().equals(worker.getId()))
             {
                 w.setWorkerName(worker.getWorkerName());
+                w.setWorkerType(worker.getWorkerType());
                 w.setServerURL(worker.getServerURL());
                 w.setRecordTime(worker.getRecordTime());
-                w.setBotList(worker.getBotList());
+                w.setStatus(worker.getStatus());
 
                     if(simWorkerRepository.save(w) != null)
                     {
@@ -104,18 +120,18 @@ public class SimWorkerService
         return this.simWorkerRepository.findAll().size();
     }
 
-    public SimWorker findByWorkerName(String workerName)
+    public List<SimWorker> findWorkersByType(String workerType)
     {
-        return simWorkerRepository.findByWorkerName(workerName);
+        List<SimWorker> workers = new ArrayList<>();
+
+        for(SimWorker worker : this.findAll())
+        {
+            if(worker.getWorkerType().toString().equals(workerType))
+            {
+                workers.add(worker);
+            }
+        }
+        return workers;
     }
 
-    public SimWorker findByWorkerId(Long workerId)
-    {
-        return simWorkerRepository.findByWorkerId(workerId);
-    }
-
-    public SimWorker findById(Long id)
-    {
-        return simWorkerRepository.findById(id);
-    }
 }

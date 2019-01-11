@@ -4,6 +4,7 @@ import be.uantwerpen.sc.models.security.Permission;
 import be.uantwerpen.sc.models.security.Role;
 import be.uantwerpen.sc.models.security.User;
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.repositories.security.PermissionRepository;
 import be.uantwerpen.sc.repositories.security.RoleRepository;
 import be.uantwerpen.sc.repositories.security.UserRepository;
@@ -98,7 +99,7 @@ public class DatabaseLoader
     private void initWorkerDatabase()
     {
         //Test worker
-        SimWorker worker1 = new SimWorker("worker-1", "localhost");
+        SimWorker worker1 = new SimWorker("worker-1", "localhost", SimWorkerType.car);
 
         //Save workers to database
         simWorkerRepository.save(worker1);

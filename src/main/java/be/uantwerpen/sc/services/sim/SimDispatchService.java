@@ -1,12 +1,11 @@
 package be.uantwerpen.sc.services.sim;
 
-import be.uantwerpen.sc.models.sim.SimBot;
-import be.uantwerpen.sc.models.sim.SimCar;
-import be.uantwerpen.sc.models.sim.SimDrone;
-import be.uantwerpen.sc.models.sim.SimF1;
+import be.uantwerpen.sc.models.sim.*;
+import be.uantwerpen.sc.services.vehicleBackends.F1Backend;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by Thomas on 5/05/2017.
@@ -18,23 +17,14 @@ public class SimDispatchService
     @Autowired
     SimSupervisorService supervisorService;
 
-    @Value("${rc.core.ip}")
-    private String robotCoreIp;
+    @Autowired
+    SimWorkerService workerService;
 
-    @Value("${ds.core.ip}")
-    private String droneCoreIp;
-
-    @Value("${f1.core.ip}")
-    private String f1CoreIp;
-
-    @Value("#{new Integer(${rc.core.port})}")
-    private int robotCorePort;
-
-    @Value("#{new Integer(${ds.core.port})}")
-    private int droneCorePort;
-
-    @Value("#{new Integer(${f1.core.port})}")
-    private int f1CorePort;
+    // Backends for the simulation classes. Necessary for creating startpoints
+    // TODO betere manier om dit aan te pakken?
+    // Misschien eigen startpuntservice
+    @Autowired
+    F1Backend f1Backend;
 
     public SimDispatchService()
     {
@@ -64,19 +54,42 @@ public class SimDispatchService
     {
         SimBot simBot;
 
+        // Find a worker of the bot type to fill the workerId, ip and port field of the new bot
+        List<SimWorker> botTypeWorkers = workerService.findWorkersByType(botType);
+        SimWorker lowestAmountBotsWorker = botTypeWorkers.get(0);
+
+        for(SimWorker worker : botTypeWorkers)
+        {
+            if(worker.getStatus().equals("ONLINE"))
+            {
+                // Check workers of the botType and put the bot on the worker with least amount of bots
+                if(supervisorService.amountBotsWorker(worker.getId()) <= supervisorService.amountBotsWorker(lowestAmountBotsWorker.getId()))
+                {
+                    lowestAmountBotsWorker = worker;
+                }
+            }
+        }
+
+        long workerId = lowestAmountBotsWorker.getId();
+        String workerServerURL = lowestAmountBotsWorker.getServerURL();
+        String[] ipPort = workerServerURL.split(":");
+
         switch(botType.toLowerCase().trim())
         {
             case "car":
                 simBot = new SimCar();
-                simBot.setServerCoreAddress(robotCoreIp, robotCorePort);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             case "drone":
                 simBot = new SimDrone();
-                simBot.setServerCoreAddress(droneCoreIp, droneCorePort);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             case "f1":
-                simBot = new SimF1();
-                simBot.setServerCoreAddress(f1CoreIp, f1CorePort);
+                simBot = new SimF1(f1Backend);
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setWorkerId(workerId);
                 break;
             default:
                 simBot = null;

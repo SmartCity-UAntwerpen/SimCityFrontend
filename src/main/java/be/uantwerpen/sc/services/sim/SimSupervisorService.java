@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Thomas on 5/05/2017.
@@ -18,9 +19,15 @@ public class SimSupervisorService
 {
     private List<SimBot> bots;
 
+    /**
+     * The most recently assigned id to a bot
+     */
+    private AtomicInteger nextId;
+
     public SimSupervisorService()
     {
         this.bots = new ArrayList<SimBot>();
+        this.nextId = new AtomicInteger(0);
     }
 
     public SimBotStatus getBotStatus(int botId)
@@ -70,7 +77,6 @@ public class SimSupervisorService
 
     public boolean addNewBot(SimBot bot)
     {
-        boolean status;
         int nextId = this.getNextId();
 
         bot.setId(nextId);
@@ -215,25 +221,7 @@ public class SimSupervisorService
 
     private int getNextId()
     {
-        int nextId = 0;
-        Iterator<SimBot> it = this.bots.iterator();
-
-        if(!this.bots.isEmpty())
-        {
-            while(it.hasNext())
-            {
-                SimBot bot = it.next();
-
-                if(nextId < bot.getId())
-                {
-                    nextId = bot.getId();
-                }
-            }
-
-            nextId++;
-        }
-
-        return nextId;
+        return nextId.getAndIncrement();
     }
 
     private SimBot getBot(int botId)
@@ -294,5 +282,30 @@ public class SimSupervisorService
     {
         return this.bots;
     }
-}
 
+    public long getBotWorkerID(int botId)
+    {
+        SimBot bot = this.getBot(botId);
+        return bot.getWorkerId();
+    }
+
+    public List<SimBot> findAllBotsByWorkerID(long workerID)
+    {
+        List<SimBot> workerBots = new ArrayList<>();
+
+        for(SimBot simBot : this.bots)
+        {
+            if(simBot.getWorkerId() == workerID)
+            {
+                workerBots.add(simBot);
+            }
+        }
+
+        return workerBots;
+    }
+
+    public int amountBotsWorker(Long workerId)
+    {
+        return this.findAllBotsByWorkerID(workerId).size();
+    }
+}

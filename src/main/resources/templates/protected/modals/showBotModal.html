@@ -20,17 +20,15 @@
                         <hr/>
                         <div th:switch="${aBot.getStartPoint()}">
                             <label th:case="'-1'" class="control" th:text="#{bot.startpoint} + ': '+'not set'">Startpoint:</label>
+                            <label th:case="'-2'" class="control" th:text="#{bot.startpoint} + ': ' + #{bot.startpoint.auto}">Startpoint:</label>
                             <label th:case="*" class="control" th:text="#{bot.startpoint} + ': '+${aBot.getStartPoint()}">Startpoint:</label>
                         </div>
-                        <!--<?php if(${aBot.getStartPoint()} == -1) : ?>
-                        <label class="control" th:text="#{bot.startpoint} + ': '+'not set'">Startpoint:</label>
-                        <?php elseif(${aBot.getStartPoint()} != -1) : ?>
-                        <label class="control" th:text="#{bot.startpoint} + ': '+${aBot.getStartPoint()}">Startpoint:</label>
-                        <?php endif; ?>-->
                         <hr/>
                         <label class="control" th:text="#{bot.speed} + ': '+${aBot.getSimSpeed()}">Speed:</label>
                         <hr/>
                         <label class="control" th:text="#{bot.status} + ': '+${aBot.getBotStatus().getRunningState()}">Status:</label>
+                        <hr/>
+                        <label class="control" th:text="#{bot.workerId} + ': '+${aBot.getWorkerId()}">Worker Id:</label>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{close}">Close</button>
