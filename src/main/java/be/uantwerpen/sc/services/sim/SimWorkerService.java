@@ -4,6 +4,7 @@ import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimWorker;
 import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.repositories.sim.SimWorkerRepository;
+import be.uantwerpen.sc.tools.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,11 @@ public class SimWorkerService
 {
     @Autowired
     private SimWorkerRepository simWorkerRepository;
+
+    @Autowired
+    private SimSupervisorService supervisorService;
+
+    private Terminal terminal;
 
     public Iterable<SimWorker> findAll()
     {
@@ -105,7 +111,9 @@ public class SimWorkerService
                 w.setServerURL(worker.getServerURL());
                 w.setRecordTime(worker.getRecordTime());
                 w.setStatus(worker.getStatus());
-
+                if(w.getStatus().equalsIgnoreCase("CONNECTION ERROR")){
+                    this.killWorkerBots(w.getId());
+                }
                     if(simWorkerRepository.save(w) != null)
                     {
                         return true;
@@ -133,5 +141,34 @@ public class SimWorkerService
         }
         return workers;
     }
+
+    // Kill all bots in worker back-end
+    private boolean killWorkerBots(long workerId)
+    {
+        SimBot tempBot;
+        int i = 0;
+        boolean success = true;
+        List<SimBot> botTypeList = supervisorService.findAllBotsByWorkerID(workerId);
+
+        while(i < botTypeList.size() && success)
+        {
+            tempBot = botTypeList.get(i);
+            if(tempBot != null)
+            {
+                success = supervisorService.removeBot(tempBot.getId());
+                if(success)
+                {
+                    terminal.printTerminalInfo("Bot killed with id: " + tempBot.getId() + ".");
+                }
+                else
+                {
+                    terminal.printTerminalInfo("Could not kill bot with id: " + tempBot.getId() + "!");
+                }
+            }
+            i++;
+        }
+        return success;
+    }
+
 
 }

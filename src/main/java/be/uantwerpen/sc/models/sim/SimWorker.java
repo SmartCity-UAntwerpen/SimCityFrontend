@@ -117,6 +117,7 @@ public class SimWorker extends MyAbstractPersistable<Long>
                     logger.info("Ping successfull with " + workerName);
                     simSocket.close();
                     this.status = "ONLINE";
+
                 } else {
                     logger.error("Unknown response received from " + workerName + " (ID: " + this.getId() + ")!");
                     simSocket.close();

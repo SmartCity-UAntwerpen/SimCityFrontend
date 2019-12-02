@@ -308,4 +308,15 @@ public class SimSupervisorService
     {
         return this.findAllBotsByWorkerID(workerId).size();
     }
+
+    //find all bots of a certain type
+    public List<SimBot> findAllType(String botType){
+        List<SimBot> temp = new ArrayList<SimBot>();
+        for(SimBot b: this.bots){
+            if(b.getType().equals(botType)){
+                temp.add(b);
+            }
+        }
+        return temp;
+    }
 }
