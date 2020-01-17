@@ -7,7 +7,9 @@
           <element id="module-output" name="SCSimCity" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="Maven: be.uantwerpen.sc:SCCommon:0.0.1-SNAPSHOT" />
+          <element id="file-copy" path="$MAVEN_REPOSITORY$/be/uantwerpen/sc/SmartCityCommon/0.0.4-SNAPSHOT/SmartCityCommon-0.0.4-20190108.124547-1.jar" output-file-name="SmartCityCommon-0.0.4-SNAPSHOT.jar" />
+          <element id="library" level="project" name="Maven: commons-lang:commons-lang:2.6" />
+          <element id="library" level="project" name="Maven: com.google.guava:guava:14.0.1" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter:1.3.2.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot:1.3.2.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context:4.2.4.RELEASE" />
@@ -27,6 +29,10 @@
           <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-core:1.3" />
           <element id="library" level="project" name="Maven: org.hamcrest:hamcrest-library:1.3" />
           <element id="library" level="project" name="Maven: org.springframework:spring-test:4.2.4.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-websocket:1.3.2.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-messaging:4.2.4.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.2.4.RELEASE" />
+          <element id="library" level="project" name="Maven: org.springframework:spring-websocket:4.2.4.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-web:1.3.2.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-tomcat:1.3.2.RELEASE" />
           <element id="library" level="project" name="Maven: org.apache.tomcat.embed:tomcat-embed-core:8.0.30" />
@@ -41,7 +47,6 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.6.5" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.6.5" />
           <element id="library" level="project" name="Maven: org.springframework:spring-web:4.2.4.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.2.4.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.2.4.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.2.4.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework.boot:spring-boot-starter-security:1.3.2.RELEASE" />
@@ -88,7 +93,6 @@
           <element id="library" level="project" name="Maven: org.springframework:spring-aspects:4.2.4.RELEASE" />
           <element id="library" level="project" name="Maven: com.h2database:h2:1.4.190" />
           <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.38" />
-          <element id="library" level="project" name="Maven: be.uantwerpen.sc:SmartCityCommon:0.0.1-SNAPSHOT" />
         </element>
       </element>
       <element id="directory" name="META-INF">

@@ -48,9 +48,11 @@ public abstract class SimBot implements Runnable
 
     public boolean create()
     {
-        if(!sendCommand("create " + id + "\n"))
-        {
-            return false;
+        if(this.type.equalsIgnoreCase("f1")){
+            if(!sendCommand("create " + id + "\n"))
+            {
+              return false;
+            }
         }
         return true;
     }
@@ -61,11 +63,11 @@ public abstract class SimBot implements Runnable
         {
             return false;
         }
-
-        if(!sendCommand("run " + id + "\n")) {
-            return false;
+        if(this.type.equalsIgnoreCase("f1")) {
+            if(!sendCommand("run " + id + "\n")) {
+                return false;
+            }
         }
-
         this.simulationThread = new Thread(this);
 
         this.simulationThread.start();
@@ -86,18 +88,28 @@ public abstract class SimBot implements Runnable
 
             while(simulationThread.isAlive() && getType() == "car")
             {
+                try {
+                    Thread.sleep(10);
+                }catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
                 //Wait for thread to stop
             }
         }
-        if(this.sendCommand("restart " + id + "\n"))
-        {
-            this.running = true;
-            return true;
-        }
-        else
-        {
+        if(this.type.equalsIgnoreCase("f1")){
+            if(this.sendCommand("restart " + id + "\n"))
+            {
+                this.running = true;
+                return true;
+            }
+            else
+            {
             return false;
+            }
         }
+        this.running = true;
+        return true;
+
     }
 
     public boolean stop()
@@ -109,24 +121,34 @@ public abstract class SimBot implements Runnable
 
         if(this.running)
         {
-            if(sendCommand("stop " + id + "\n")) {
+            if(this.type.equalsIgnoreCase("f1")){
+                if(sendCommand("stop " + id + "\n")) {
                 this.running = false;
                 return true;
+                }
             }
+            //if(sendCommand("stop " + id + "\n")) {
+                this.running = false;
+                return true;
+            //}
         }
         return false;
     }
 
     public boolean remove()
     {
-        if(sendCommand("kill " + id + "\n"))
-        {
+        if(this.type.equalsIgnoreCase("f1")){
+            if(sendCommand("kill " + id + "\n"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
             return true;
-        }
-        else
-        {
-            return false;
-        }
+
     }
 
     public boolean interrupt()
@@ -246,7 +268,7 @@ public abstract class SimBot implements Runnable
         }
     }
 
-    protected boolean sendCommand(String message)
+    public boolean sendCommand(String message)
     {
         //Create socket connection to corresponding core
         try

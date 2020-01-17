@@ -6,6 +6,7 @@ import be.uantwerpen.sc.services.sim.SimDispatchService;
 import be.uantwerpen.sc.services.sim.SimSupervisorService;
 import be.uantwerpen.sc.tools.Terminal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

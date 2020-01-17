@@ -48,8 +48,10 @@ public class SimDrone extends SimVehicle
     public boolean parseProperty(String property, String value) throws Exception
     {
         if(super.parseProperty(property, value)) {
+            return true;
+            //deprecated : TCP Conncetion
             //Create socket connection to core
-            try {
+            /*try {
                 SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
                 simSocket.setTimeOut(500);
 
@@ -81,7 +83,7 @@ public class SimDrone extends SimVehicle
             } catch (IOException e) {
                 System.out.println("I/O exception occurred!");
                 return false;
-            }
+            }*/
         }
 
         switch(property.toLowerCase().trim())

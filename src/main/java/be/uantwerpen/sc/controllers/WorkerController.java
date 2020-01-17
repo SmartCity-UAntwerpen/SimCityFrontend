@@ -1,13 +1,22 @@
 package be.uantwerpen.sc.controllers;
 
+import be.uantwerpen.sc.Messages.ServerMessage;
+import be.uantwerpen.sc.Messages.WorkerJob;
+import be.uantwerpen.sc.Messages.WorkerMessage;
 import be.uantwerpen.sc.models.sim.SimBot;
 import be.uantwerpen.sc.models.sim.SimForm;
 import be.uantwerpen.sc.models.sim.SimWorker;
+import be.uantwerpen.sc.models.sim.SimWorkerType;
 import be.uantwerpen.sc.services.sim.SimSupervisorService;
 import be.uantwerpen.sc.services.sim.SimWorkerService;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.TypesList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -28,10 +37,17 @@ import java.util.stream.Collectors;
 public class WorkerController extends GlobalModelController
 {
     @Autowired
+    private SimpMessagingTemplate template; //template for sending stomp messages
+
+    @Autowired
     private SimWorkerService workerService;
 
     @Autowired
     private SimSupervisorService supervisorService;
+
+    //added on 16/12/2019
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     // Show worker page
     @RequestMapping(value = "/workers")
@@ -56,6 +72,7 @@ public class WorkerController extends GlobalModelController
         }
         else if(workerService.delete(workerId))
         {
+            shutdownWorker(workerId);
             model.clear();
             return "redirect:/settings/workers?workerRemoved";
         }
@@ -126,4 +143,34 @@ public class WorkerController extends GlobalModelController
         return "protected/workerManagement";
     }
 
+    //Created on 16/12/2019
+    //!!!!This method is in use: it receives messages from the workers
+    //It gets invoked by the websockets.
+    @MessageMapping("/worker/{topic}")
+    @SendToUser("/queue/worker")
+    public ServerMessage receive(WorkerMessage message) throws Exception{
+        SimWorker w = new SimWorker();
+        w.setStatus("ONLINE");
+        String temp = SimWorkerType.TypeToString(message.getWorkerType());
+        long workerID = 0L;
+        w.setWorkerName("TEMP");
+        w.setWorkerType(message.getWorkerType());
+        workerService.add(w);
+        for(SimWorker wTemp: workerService.findAll()){
+            if(wTemp.getId() > workerID){
+                workerID = wTemp.getId();
+            }
+        }
+        SimWorker tempWorker = workerService.findById(workerID);
+        tempWorker.setWorkerName(temp + ":" + workerID);
+        workerService.save(tempWorker);
+        return new ServerMessage(workerID, WorkerJob.CONNECTION,0," ");
+    }
+
+    @MessageMapping("/worker")
+    public void shutdownWorker(long workerID){
+        System.out.println("shutting down worker " + workerID);
+        ServerMessage message = new ServerMessage(workerID,WorkerJob.CONNECTION,0,"SHUTDOWN");
+        this.template.convertAndSend("/topic/shutdown",message);
+    }
 }

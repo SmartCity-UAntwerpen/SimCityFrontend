@@ -13,6 +13,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+
+import org.springframework.context.annotation.Configuration;
+
 /**
  * Created by Thomas on 27/02/2016.
  */
@@ -30,6 +33,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
     {
         http.authorizeRequests().antMatchers("/webjars/**")
                                     .permitAll();
+        http.authorizeRequests().antMatchers("/Robot/**","/Drone/**","/F1/**","/worker/**","/droneworker/**")
+                .permitAll();
 
         http.authorizeRequests().antMatchers("/login","/about")
                                     .permitAll()

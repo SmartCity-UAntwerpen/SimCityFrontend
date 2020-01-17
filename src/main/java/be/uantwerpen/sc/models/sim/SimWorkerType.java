@@ -13,4 +13,17 @@ public enum SimWorkerType {
             default: throw new IllegalArgumentException("Unkwown worker type");
         }
     }
+
+    //Added on 16/12/2019
+    public static String TypeToString(SimWorkerType type){
+        switch (type){
+            case f1:
+                return "F1";
+            case car:
+                return "CAR";
+            case drone:
+                return "DRONE";
+            default: throw new IllegalArgumentException("Unkwown worker type");
+        }
+    }
 }

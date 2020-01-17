@@ -1,10 +1,11 @@
 package be.uantwerpen.sc.controllers;
 
-import be.uantwerpen.sc.models.sim.SimBot;
-import be.uantwerpen.sc.models.sim.SimForm;
-import be.uantwerpen.sc.models.sim.SimVehicle;
+import be.uantwerpen.sc.Messages.ServerMessage;
+import be.uantwerpen.sc.Messages.WorkerJob;
+import be.uantwerpen.sc.models.sim.*;
 import be.uantwerpen.sc.services.sim.SimDispatchService;
 import be.uantwerpen.sc.services.sim.SimSupervisorService;
+import be.uantwerpen.sc.services.sim.SimWorkerService;
 import be.uantwerpen.sc.tools.AutomaticStartingPointException;
 import be.uantwerpen.sc.tools.PropertiesList;
 import be.uantwerpen.sc.tools.Terminal;
@@ -12,6 +13,10 @@ import be.uantwerpen.sc.tools.TypesList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -35,16 +42,25 @@ public class BotController extends GlobalModelController{
     private static final Logger logger = LoggerFactory.getLogger(BotController.class);
 
     @Autowired
+    private SimpMessagingTemplate template; //template for sending stomp messages
+
+    @Autowired
     SimDispatchService dispatchService;
 
     @Autowired
     SimSupervisorService supervisorService;
 
     @Autowired
+    SimWorkerService workerService;
+
+    @Autowired
     TypesList typesList;
 
     private Terminal terminal;
-
+    private boolean responded = false;
+    private boolean acknowleged = false;
+    private long ackID = 0L;
+    private HashMap<ServerMessage, Boolean> acknowledgements;
     // Returns bot management page
     @RequestMapping(value = {"/bots"})
     @PreAuthorize("hasRole('logon')")
@@ -227,24 +243,36 @@ public class BotController extends GlobalModelController{
         {
             case "car":
                 bot = dispatchService.instantiateBot(type);
+                RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
                 break;
             case "drone":
                 bot = dispatchService.instantiateBot(type);
+                RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
                 break;
             case "f1":
-                bot = dispatchService.instantiateBot(type);
-                break;
+                bot = dispatchService.instantiateBot(type);break;
             default:
                 terminal.printTerminalInfo("Bottype: '" + type + "' is unknown!");
                 terminal.printTerminalInfo("Known types: {car | drone | f1}");
                 return false;
         }
-
+        //Wait for an acknowledge from the worker
+        if(!waitForResponse(bot.getId())){
+            supervisorService.removeBot(bot.getId());
+            return false;
+        }
         if(bot != null)
         {
             logger.info("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             //terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
-            if(autoStartPoint) setAutoStart(bot); // could throw exception if not possible
+            if(autoStartPoint) {
+                RobotJob(bot.getId(),"startpoint auto\n",WorkerJob.SET); //send job over websocket
+                    if(!waitForResponse(bot.getId())){ //Wait for an acknowledge from the worker
+                    supervisorService.removeBot(bot.getId());
+                    return false;
+                }
+                setAutoStart(bot);
+            } // could throw exception if not possible
             return true;
         }
         else
@@ -257,7 +285,7 @@ public class BotController extends GlobalModelController{
     private void setAutoStart(SimBot bot) throws AutomaticStartingPointException {
         if(bot instanceof SimVehicle) {
             SimVehicle vehicle = (SimVehicle) bot;
-            vehicle.setAutomaticStartPoint();
+            //vehicle.setAutomaticStartPoint();
         }
         else {
             throw new AutomaticStartingPointException("Auto starting point is only supported for vehicles!");
@@ -271,6 +299,12 @@ public class BotController extends GlobalModelController{
         for(int i = 0; i < amount; i++)
         {
             SimBot bot = dispatchService.instantiateBot(type);
+            RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
+            if(!waitForResponse(bot.getId())){                          //if acknowledged or timed out continue
+                supervisorService.removeBot(bot.getId());
+                terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
+                return false;
+            }
             if(bot == null)
             {
                 terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
@@ -288,16 +322,25 @@ public class BotController extends GlobalModelController{
     // Start both with certain ID in worker back-end
     private boolean startBot(int botId)
     {
-        if(supervisorService.startBot(botId))
-        {
-            terminal.printTerminalInfo("Bot started with id: " + botId + ".");
-            return true;
-        }
-        else
+        RobotJob(botId,"",WorkerJob.START);     //send job over websocket
+        if(waitForResponse(botId)){                          //if acknowledged
+            if(supervisorService.startBot(botId))
+            {
+
+                terminal.printTerminalInfo("Bot started with id: " + botId + ".");
+                return true;
+            }else
+            {
+                terminal.printTerminalError("Could not start bot with id: " + botId + "!");
+                return false;
+            }
+        }else
         {
             terminal.printTerminalError("Could not start bot with id: " + botId + "!");
             return false;
         }
+
+
     }
 
     // Start bots with IDs in a certain range in worker back-end
@@ -331,12 +374,20 @@ public class BotController extends GlobalModelController{
     // Stop bot with certain ID in worker back-end
     private boolean stopBot(int botId)
     {
-        if(supervisorService.stopBot(botId))
-        {
-            terminal.printTerminalInfo("Bot stopped with id: " + botId + ".");
-            return true;
-        }
-        else
+        RobotJob(botId,"",WorkerJob.STOP); //send job over websocket
+        if(waitForResponse(botId)){                      //if acknowledged continue
+            if(supervisorService.stopBot(botId))
+            {
+
+                terminal.printTerminalInfo("Bot stopped with id: " + botId + ".");
+                return true;
+            }
+            else
+            {
+                terminal.printTerminalError("Could not stop bot with id: " + botId + "!");
+                return false;
+            }
+        }else
         {
             terminal.printTerminalError("Could not stop bot with id: " + botId + "!");
             return false;
@@ -346,12 +397,19 @@ public class BotController extends GlobalModelController{
     // Restart bot with certain ID in worker back-end
     private boolean restartBot(int botId)
     {
-        if(supervisorService.restartBot(botId))
-        {
-            terminal.printTerminalInfo("Bot restarted with id: " + botId + ".");
-            return true;
-        }
-        else
+        RobotJob(botId,"",WorkerJob.RESTART); //send job over websocket
+        if(waitForResponse(botId)){                         //if acknowledged continue
+            if(supervisorService.restartBot(botId))
+            {
+                terminal.printTerminalInfo("Bot restarted with id: " + botId + ".");
+                return true;
+            }
+            else
+            {
+                terminal.printTerminalError("Could not restart bot with id: " + botId + "!");
+                return false;
+            }
+        }else
         {
             terminal.printTerminalError("Could not restart bot with id: " + botId + "!");
             return false;
@@ -361,12 +419,20 @@ public class BotController extends GlobalModelController{
     // Kill bot with certain ID in worker back-end
     private boolean killBot(int botId)
     {
-        if(supervisorService.removeBot(botId))
-        {
-            terminal.printTerminalInfo("Bot killed with id: " + botId + ".");
-            return true;
-        }
-        else
+        RobotJob(botId,"",WorkerJob.KILL); //send job over websocket
+        if(waitForResponse(botId)){                      //if acknowledged continue
+            if(supervisorService.removeBot(botId))
+            {
+
+                terminal.printTerminalInfo("Bot killed with id: " + botId + ".");
+                return true;
+            }
+            else
+            {
+                terminal.printTerminalError("Could not kill bot with id: " + botId + "!");
+                return false;
+            }
+        }else
         {
             terminal.printTerminalError("Could not kill bot with id: " + botId + "!");
             return false;
@@ -405,10 +471,19 @@ public class BotController extends GlobalModelController{
     // Set property to value for bot with certain ID in worker back-end
     private boolean setBotProperty(int botId, String property, String value)
     {
-        if(supervisorService.setBotProperty(botId, property, value))
-        {
-            terminal.printTerminalInfo("Property set for bot with id: " + botId + ".");
-            return true;
+        RobotJob(botId,property,WorkerJob.SET); //send job over websocket
+        if(waitForResponse(botId)){                  //if acknowledged continue
+            if(supervisorService.setBotProperty(botId, property, value))
+            {
+
+                terminal.printTerminalInfo("Property set for bot with id: " + botId + ".");
+                return true;
+            }
+            else
+            {
+                terminal.printTerminalError("Could not set property for bot with id: " + botId + "!");
+                return false;
+            }
         }
         else
         {
@@ -433,4 +508,73 @@ public class BotController extends GlobalModelController{
 
         return parsedInt;
     }
+    //Created on 16/12/2019
+    //Send a job to a robot worker over websockets
+    @MessageMapping("/Robot")
+    public void RobotJob(int botID, String property, WorkerJob job)
+    {
+        System.out.println("testing robot");
+        long ID = supervisorService.getBotWorkerID(botID);
+        ServerMessage message = new ServerMessage(ID,job,botID,property);
+        logger.info("Sending job: " + job + " to worker: " + ID);
+        this.template.convertAndSend("/topic/messages",message);
+
+    }
+    //Receiver for answers to the sent jobs
+    //!!! this method is used even though Intellij says not
+    //it just listens and acts if message is received
+    @MessageMapping("/Robot/topic/answers")
+    public void AnswerReceived(ServerMessage message) throws Exception{
+        this.acknowleged = false;
+        if(message.getArguments().equalsIgnoreCase("OK")){
+            logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
+            this.acknowleged = true;
+        }else{
+            logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
+            this.acknowleged = false;
+        }
+        this.ackID = message.getBotID(); //!!! needs to be set before result otherwise concurrency issue
+        this.responded = true;           //as soon as this is set waitForResponse() activates leave last !!!
+    }
+    //Created on 16/12/2019
+    //Send a job to a Drone worker over websockets
+    @MessageMapping("/Drone/")
+    public void DroneJob(int botID, String property, WorkerJob job)
+    {
+        System.out.println("testing Drone");
+        long ID = supervisorService.getBotWorkerID(botID);
+        ServerMessage message = new ServerMessage(ID,job,botID,property);
+        this.template.convertAndSend("/topic/messages",message);
+    }
+
+    //This method is currently used as a buffer for awaiting response
+    //#TODO Could be solved using ACK in STOMP header but not yet implemented
+    private boolean waitForResponse(long botID){
+        long t = System.currentTimeMillis();
+        long end = t+20000;
+        while(!this.responded && System.currentTimeMillis() < end){
+            //wait
+        }
+        boolean temp = this.acknowleged;
+        if(this.responded && botID != this.ackID){
+            temp =  false;
+        }
+        //Set connection error when the worker could not be reached
+        //#TODO gracefull shutdown of worker on frontend if persists
+        //#TODO otherwise wait and retry????
+        if(!this.responded){
+            SimWorker tempWorker = workerService.findById(supervisorService.getBotWorkerID((int)botID));
+            tempWorker.setStatus("CONNECTION ERROR");
+            workerService.save(tempWorker);
+        }
+        this.responded = false;
+        this.acknowleged = false;
+        this.ackID = 0L;
+
+        return true;
+    }
 }
+
+
+
+
