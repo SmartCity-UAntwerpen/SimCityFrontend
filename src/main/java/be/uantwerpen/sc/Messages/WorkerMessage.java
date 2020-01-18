@@ -3,6 +3,7 @@ package be.uantwerpen.sc.Messages;
 import be.uantwerpen.sc.models.sim.SimWorkerType;
 /**
  * Added By Andreas on 16/12/2019
+ * Template of the STOMP Message (needs to be same on workers)
  */
 public class WorkerMessage {
 

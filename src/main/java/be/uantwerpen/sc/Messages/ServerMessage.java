@@ -1,6 +1,7 @@
 package be.uantwerpen.sc.Messages;
 /**
  * Added By Andreas on 16/12/2019
+ * Template for the STOMP Message (needs to be same on workers)
  */
 public class ServerMessage {
     private long workerID;

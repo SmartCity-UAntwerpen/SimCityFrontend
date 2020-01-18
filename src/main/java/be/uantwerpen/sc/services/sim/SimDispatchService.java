@@ -70,25 +70,26 @@ public class SimDispatchService
         }
 
         long workerId = lowestAmountBotsWorker.getId();
-        //IP Adress not longer used due to automatic login workes
-        //String workerServerURL = lowestAmountBotsWorker.getServerURL();
-        //String[] ipPort = workerServerURL.split(":");
 
         switch(botType.toLowerCase().trim())
         {
             case "car":
                 simBot = new SimCar();
+                //IP Adress not longer used due to automatic login workes
                 //simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
                 simBot.setWorkerId(workerId);
                 break;
             case "drone":
                 simBot = new SimDrone();
+                //IP Adress not longer used due to automatic login workes
                 //simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
                 simBot.setWorkerId(workerId);
                 break;
             case "f1":
+                String workerServerURL = lowestAmountBotsWorker.getServerURL();
+                String[] ipPort = workerServerURL.split(":");
                 simBot = new SimF1(f1Backend);
-                //simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
+                simBot.setServerCoreAddress(ipPort[0], Integer.parseInt(ipPort[1]));
                 simBot.setWorkerId(workerId);
                 break;
             default:

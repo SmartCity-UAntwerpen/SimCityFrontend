@@ -28,10 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Thomas on 5/05/2017.
@@ -60,7 +58,7 @@ public class BotController extends GlobalModelController{
     private boolean responded = false;
     private boolean acknowleged = false;
     private long ackID = 0L;
-    private HashMap<ServerMessage, Boolean> acknowledgements;
+    private Map<ServerMessage, Boolean> acknowledgements = new ConcurrentHashMap<>();
     // Returns bot management page
     @RequestMapping(value = {"/bots"})
     @PreAuthorize("hasRole('logon')")
@@ -243,32 +241,34 @@ public class BotController extends GlobalModelController{
         {
             case "car":
                 bot = dispatchService.instantiateBot(type);
-                RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
+                RobotJob(bot.getId()," ",WorkerJob.BOT); //send job over websocket
                 break;
             case "drone":
                 bot = dispatchService.instantiateBot(type);
-                RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
+                RobotJob(bot.getId()," ",WorkerJob.BOT); //send job over websocket
                 break;
             case "f1":
-                bot = dispatchService.instantiateBot(type);break;
+                bot = dispatchService.instantiateBot(type); //send job over tcp
+                break;
             default:
                 terminal.printTerminalInfo("Bottype: '" + type + "' is unknown!");
                 terminal.printTerminalInfo("Known types: {car | drone | f1}");
                 return false;
         }
         //Wait for an acknowledge from the worker
-        if(!waitForResponse(bot.getId())){
-            supervisorService.removeBot(bot.getId());
-            return false;
+        if(!type.equalsIgnoreCase("f1")){
+            if(!waitForResponse(bot.getId(),WorkerJob.BOT)){
+                supervisorService.removeBot(bot.getId()); //remove if not acknowledged
+                return false;
+            }
         }
         if(bot != null)
         {
             logger.info("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
-            //terminal.printTerminalInfo("New bot of type: '" + bot.getType() + "' and name: '" + bot.getName() + "' instantiated.");
             if(autoStartPoint) {
                 RobotJob(bot.getId(),"startpoint auto\n",WorkerJob.SET); //send job over websocket
-                    if(!waitForResponse(bot.getId())){ //Wait for an acknowledge from the worker
-                    supervisorService.removeBot(bot.getId());
+                    if(!waitForResponse(bot.getId(),WorkerJob.SET)){ //Wait for an acknowledge from the worker
+                    supervisorService.removeBot(bot.getId());        // remove if not acknowledged
                     return false;
                 }
                 setAutoStart(bot);
@@ -299,9 +299,9 @@ public class BotController extends GlobalModelController{
         for(int i = 0; i < amount; i++)
         {
             SimBot bot = dispatchService.instantiateBot(type);
-            RobotJob(bot.getId(),"",WorkerJob.BOT); //send job over websocket
-            if(!waitForResponse(bot.getId())){                          //if acknowledged or timed out continue
-                supervisorService.removeBot(bot.getId());
+            RobotJob(bot.getId()," ",WorkerJob.BOT); //send job over websocket
+            if(!waitForResponse(bot.getId(),WorkerJob.BOT)){  //if acknowledged or timed out continue
+                supervisorService.removeBot(bot.getId());     //remove if not acknowledged
                 terminal.printTerminalError("Could not instantiate bot of type: " + type + "!");
                 return false;
             }
@@ -322,8 +322,8 @@ public class BotController extends GlobalModelController{
     // Start both with certain ID in worker back-end
     private boolean startBot(int botId)
     {
-        RobotJob(botId,"",WorkerJob.START);     //send job over websocket
-        if(waitForResponse(botId)){                          //if acknowledged
+        RobotJob(botId," ",WorkerJob.START);     //send job over websocket
+        if(waitForResponse(botId,WorkerJob.START)){       //if acknowledged start bot
             if(supervisorService.startBot(botId))
             {
 
@@ -374,8 +374,8 @@ public class BotController extends GlobalModelController{
     // Stop bot with certain ID in worker back-end
     private boolean stopBot(int botId)
     {
-        RobotJob(botId,"",WorkerJob.STOP); //send job over websocket
-        if(waitForResponse(botId)){                      //if acknowledged continue
+        RobotJob(botId," ",WorkerJob.STOP); //send job over websocket
+        if(waitForResponse(botId,WorkerJob.STOP)){   //if acknowledged continue
             if(supervisorService.stopBot(botId))
             {
 
@@ -397,8 +397,8 @@ public class BotController extends GlobalModelController{
     // Restart bot with certain ID in worker back-end
     private boolean restartBot(int botId)
     {
-        RobotJob(botId,"",WorkerJob.RESTART); //send job over websocket
-        if(waitForResponse(botId)){                         //if acknowledged continue
+        RobotJob(botId," ",WorkerJob.RESTART); //send job over websocket
+        if(waitForResponse(botId,WorkerJob.RESTART)){   //if acknowledged continue
             if(supervisorService.restartBot(botId))
             {
                 terminal.printTerminalInfo("Bot restarted with id: " + botId + ".");
@@ -419,8 +419,8 @@ public class BotController extends GlobalModelController{
     // Kill bot with certain ID in worker back-end
     private boolean killBot(int botId)
     {
-        RobotJob(botId,"",WorkerJob.KILL); //send job over websocket
-        if(waitForResponse(botId)){                      //if acknowledged continue
+        RobotJob(botId," ",WorkerJob.KILL); //send job over websocket
+        if(waitForResponse(botId,WorkerJob.KILL)){   //if acknowledged continue
             if(supervisorService.removeBot(botId))
             {
 
@@ -452,6 +452,8 @@ public class BotController extends GlobalModelController{
             bot = botList.get(i);
             if(bot != null)
             {
+                RobotJob(bot.getId()," ",WorkerJob.KILL);
+                waitForResponse(bot.getId(),WorkerJob.KILL);
                 success = supervisorService.removeBot(bot.getId());
                 if(success)
                 {
@@ -471,8 +473,9 @@ public class BotController extends GlobalModelController{
     // Set property to value for bot with certain ID in worker back-end
     private boolean setBotProperty(int botId, String property, String value)
     {
-        RobotJob(botId,property,WorkerJob.SET); //send job over websocket
-        if(waitForResponse(botId)){                  //if acknowledged continue
+        String temp = property.concat(" ".concat(value));
+        RobotJob(botId,temp,WorkerJob.SET); //send job over websocket
+        if(waitForResponse(botId,WorkerJob.SET)){   //if acknowledged continue
             if(supervisorService.setBotProperty(botId, property, value))
             {
 
@@ -525,53 +528,57 @@ public class BotController extends GlobalModelController{
     //it just listens and acts if message is received
     @MessageMapping("/Robot/topic/answers")
     public void AnswerReceived(ServerMessage message) throws Exception{
-        this.acknowleged = false;
-        if(message.getArguments().equalsIgnoreCase("OK")){
+        if(message.getArguments().equalsIgnoreCase("OK")){ //if ack => add to hashmap
             logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
-            this.acknowleged = true;
-        }else{
+            this.acknowledgements.putIfAbsent(message,true);
+            logger.info(acknowledgements.toString());
+        }else{  //if ack => add to hashmap
             logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
-            this.acknowleged = false;
+            this.acknowledgements.putIfAbsent(message, false);
         }
-        this.ackID = message.getBotID(); //!!! needs to be set before result otherwise concurrency issue
-        this.responded = true;           //as soon as this is set waitForResponse() activates leave last !!!
-    }
-    //Created on 16/12/2019
-    //Send a job to a Drone worker over websockets
-    @MessageMapping("/Drone/")
-    public void DroneJob(int botID, String property, WorkerJob job)
-    {
-        System.out.println("testing Drone");
-        long ID = supervisorService.getBotWorkerID(botID);
-        ServerMessage message = new ServerMessage(ID,job,botID,property);
-        this.template.convertAndSend("/topic/messages",message);
     }
 
     //This method is currently used as a buffer for awaiting response
     //#TODO Could be solved using ACK in STOMP header but not yet implemented
-    private boolean waitForResponse(long botID){
+    private boolean waitForResponse(long botID,WorkerJob job){
+        if(workerService.findById(supervisorService.getBotWorkerID((int)botID)).getWorkerType() == SimWorkerType.f1){
+            return true;    //Don't wait if f1 bot since it does not use websockets
+        }
         long t = System.currentTimeMillis();
         long end = t+20000;
-        while(!this.responded && System.currentTimeMillis() < end){
-            //wait
-        }
-        boolean temp = this.acknowleged;
-        if(this.responded && botID != this.ackID){
-            temp =  false;
+        boolean responded = false;
+        boolean acknowledged = false;
+        while(!responded && System.currentTimeMillis() < end){ //wait until answer received or 20 sec have passed
+           if(!acknowledgements.isEmpty()) {                    //Check hasmap for received answer
+               Iterator it = acknowledgements.entrySet().iterator();
+               while (it.hasNext()) {
+                   Map.Entry<ServerMessage, Boolean> pair = (Map.Entry<ServerMessage, Boolean>) it.next();
+                   if (pair.getKey().getBotID() == botID && pair.getKey().getJob() == job) {
+                       if (pair.getValue()) {
+                           responded = true;
+                           acknowledged = true;
+                           logger.info("continuing process");
+                           it.remove();
+                       } else {
+                           responded = true;
+                           acknowledged = false;
+                           logger.info("Problem during process");
+                           it.remove();
+                       }
+                   }
+
+               }
+           }
         }
         //Set connection error when the worker could not be reached
         //#TODO gracefull shutdown of worker on frontend if persists
         //#TODO otherwise wait and retry????
-        if(!this.responded){
+        if(!responded){ //if timed out set connection error
             SimWorker tempWorker = workerService.findById(supervisorService.getBotWorkerID((int)botID));
             tempWorker.setStatus("CONNECTION ERROR");
             workerService.save(tempWorker);
         }
-        this.responded = false;
-        this.acknowleged = false;
-        this.ackID = 0L;
-
-        return true;
+        return acknowledged;
     }
 }
 

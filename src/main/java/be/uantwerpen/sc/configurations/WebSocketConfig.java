@@ -37,12 +37,4 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer
         registry.addEndpoint("/droneworker").setHandshakeHandler(new DefaultHandshakeHandler(new TomcatRequestUpgradeStrategy())).setAllowedOrigins("*");
     }
 
-    /*@Override
-    public boolean configureMessageConverters(List<MessageConverter> arg0) {
-
-        CustomMessageConverter WorkerMessageConvertor = new CustomMessageConverter();
-        arg0.add(WorkerMessageConvertor);
-        return true;
-    }*/
-
 }

@@ -147,30 +147,30 @@ public class WorkerController extends GlobalModelController
     //!!!!This method is in use: it receives messages from the workers
     //It gets invoked by the websockets.
     @MessageMapping("/worker/{topic}")
-    @SendToUser("/queue/worker")
+    @SendToUser("/queue/worker")    //send bakc directly to worker
     public ServerMessage receive(WorkerMessage message) throws Exception{
-        SimWorker w = new SimWorker();
-        w.setStatus("ONLINE");
-        String temp = SimWorkerType.TypeToString(message.getWorkerType());
+        SimWorker w = new SimWorker();                                         //create new worker
+        w.setStatus("ONLINE");                                                 //set online
+        String temp = SimWorkerType.TypeToString(message.getWorkerType());     //Create name
         long workerID = 0L;
-        w.setWorkerName("TEMP");
-        w.setWorkerType(message.getWorkerType());
-        workerService.add(w);
-        for(SimWorker wTemp: workerService.findAll()){
+        w.setWorkerName("TEMP");                                               //placeholder name for creation
+        w.setWorkerType(message.getWorkerType());                              //set type
+        workerService.add(w);                                                  //add to list of workers
+        for(SimWorker wTemp: workerService.findAll()){                         //retrieve ID
             if(wTemp.getId() > workerID){
                 workerID = wTemp.getId();
             }
         }
         SimWorker tempWorker = workerService.findById(workerID);
-        tempWorker.setWorkerName(temp + ":" + workerID);
+        tempWorker.setWorkerName(temp + ":" + workerID);                       //change name
         workerService.save(tempWorker);
-        return new ServerMessage(workerID, WorkerJob.CONNECTION,0," ");
+        return new ServerMessage(workerID, WorkerJob.CONNECTION,0," "); //send answer
     }
 
     @MessageMapping("/worker")
     public void shutdownWorker(long workerID){
         System.out.println("shutting down worker " + workerID);
         ServerMessage message = new ServerMessage(workerID,WorkerJob.CONNECTION,0,"SHUTDOWN");
-        this.template.convertAndSend("/topic/shutdown",message);
+        this.template.convertAndSend("/topic/shutdown",message); //send shutdown message
     }
 }
