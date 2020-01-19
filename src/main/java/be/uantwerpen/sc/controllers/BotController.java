@@ -270,7 +270,7 @@ public class BotController extends GlobalModelController{
                     if(!waitForResponse(bot.getId(),WorkerJob.SET)){ //Wait for an acknowledge from the worker
                     supervisorService.removeBot(bot.getId());        // remove if not acknowledged
                     return false;
-                }
+                    }
                 setAutoStart(bot);
             } // could throw exception if not possible
             return true;
@@ -285,7 +285,7 @@ public class BotController extends GlobalModelController{
     private void setAutoStart(SimBot bot) throws AutomaticStartingPointException {
         if(bot instanceof SimVehicle) {
             SimVehicle vehicle = (SimVehicle) bot;
-            //vehicle.setAutomaticStartPoint();
+            vehicle.setAutomaticStartPoint();
         }
         else {
             throw new AutomaticStartingPointException("Auto starting point is only supported for vehicles!");
@@ -529,11 +529,11 @@ public class BotController extends GlobalModelController{
     @MessageMapping("/Robot/topic/answers")
     public void AnswerReceived(ServerMessage message) throws Exception{
         if(message.getArguments().equalsIgnoreCase("OK")){ //if ack => add to hashmap
-            logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
+            logger.warn("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
             this.acknowledgements.putIfAbsent(message,true);
-            logger.info(acknowledgements.toString());
+            //logger.info(acknowledgements.toString());
         }else{  //if ack => add to hashmap
-            logger.info("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
+            logger.warn("Acknowledge received from worker: " + message.getWorkerID() + " Task = " + message.getJob().toString());
             this.acknowledgements.putIfAbsent(message, false);
         }
     }

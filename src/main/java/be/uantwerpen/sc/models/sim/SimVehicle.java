@@ -149,27 +149,30 @@ public abstract class SimVehicle extends SimBot
      */
     public void setAutomaticStartPoint() throws AutomaticStartingPointException
     {
-        try {
-            SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
-            simSocket.setTimeOut(500);
+        if(this.type.equalsIgnoreCase("f1")){
+            try {
+                SimSocket simSocket = new SimSocket(new Socket(this.ip, this.port));
+                simSocket.setTimeOut(500);
 
-            simSocket.sendMessage("set " + id + " startpoint auto\n");
+                simSocket.sendMessage("set " + id + " startpoint auto\n");
 
-            String response = simSocket.getMessage();
-            while (response == null) {
-                response = simSocket.getMessage();
+                String response = simSocket.getMessage();
+                while (response == null) {
+                    response = simSocket.getMessage();
+                }
+
+                if (response.equalsIgnoreCase("NACK")) {
+                    throw new AutomaticStartingPointException("Received NACK from deployer");
+                }
+
+                simSocket.close();
+                this.startPoint = -2;
             }
-
-            if (response.equalsIgnoreCase("NACK")) {
-                throw new AutomaticStartingPointException("Received NACK from deployer");
+            catch(IOException e) {
+                throw new AutomaticStartingPointException("Error contacting deployer. "+e.getMessage());
             }
+        }
 
-            simSocket.close();
-            this.startPoint = -2;
-        }
-        catch(IOException e) {
-            throw new AutomaticStartingPointException("Error contacting deployer. "+e.getMessage());
-        }
         //throw new AutomaticStartingPointException("This function is not supported yet!");
     }
 }
